@@ -30,6 +30,17 @@ const formatDateForStorage = date =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const formatDateForDisplay = dateStr => dateStr.split('-').reverse().join('/'); // YYYY-MM-DD to MM/DD/YYYY
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/budget-tracker/service-worker.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
+
 // Initialize slider min/max values display
 function initializeSlider() {
     document.getElementById('min-value').innerText = minSliderValue.toFixed(2);
