@@ -30,16 +30,17 @@ const formatDateForStorage = date =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const formatDateForDisplay = dateStr => dateStr.split('-').reverse().join('/'); // YYYY-MM-DD to MM/DD/YYYY
 
+// Register service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/budget-tracker/service-worker.js')
-        .then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
+        navigator.serviceWorker.register('/budget-tracker/service-worker.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
     });
-  }
+}
 
 // Initialize slider min/max values display
 function initializeSlider() {
@@ -58,7 +59,6 @@ function updateSliderAmount() {
 
 // Function to handle billing the entered amount
 function billIt() {
-    let sliderValue = parseInt(document.getElementById("slider").value);
     let manualAmount = document.getElementById("slider-amount").value;
 
     // Show a warning if the user hasn't entered a valid amount
@@ -116,7 +116,7 @@ function updateDailySpend() {
 // Function to handle editing the starting balance
 function editStartingBalance() {
     const balanceDiv = document.getElementById('starting-balance');
-    const currentBalance = startingBalance; // Get the current balance from the variable
+    const currentBalance = startingBalance;
 
     // Create an input element to edit the balance
     const input = document.createElement('input');
@@ -217,25 +217,6 @@ function editTransaction(index) {
     document.getElementById('edit-transaction-modal').style.display = 'block';
 }
 
-// Populate the category dropdown
-function populateCategoryDropdown() {
-    let categoryDropdown = document.getElementById('category-dropdown');
-    categoryDropdown.innerHTML = ''; // Clear any existing options
-
-    // Ensure "Other" is always present in categories
-    if (!categories.includes("Other")) {
-        categories.push("Other");
-    }
-
-    categories.forEach(category => {
-        let option = document.createElement('option');
-        option.value = category;
-        option.text = category;
-        categoryDropdown.appendChild(option);
-    });
-}
-
-
 // Close the edit modal
 function closeEditTransaction() {
     document.getElementById('edit-transaction-modal').style.display = 'none';
@@ -277,26 +258,26 @@ function updateTotalExpenses() {
     updateRemainingBalance();
 }
 
-// // Populate the transaction list
-// function populateTransactionList() {
-//     let transactionList = document.getElementById('transaction-list');
-//     transactionList.innerHTML = ''; // Clear existing transactions
+// Populate the transaction list
+function populateTransactionList() {
+    let transactionList = document.getElementById('transaction-list');
+    transactionList.innerHTML = ''; // Clear existing transactions
 
-//     transactions.forEach(function(transaction, index) {
-//         const formattedDate = formatDateForDisplay(transaction.date);
-//         let category = handleNullCategories(transaction);
-//         let listItem = document.createElement('li');
+    transactions.forEach(function(transaction, index) {
+        const formattedDate = formatDateForDisplay(transaction.date);
+        let category = handleNullCategories(transaction);
+        let listItem = document.createElement('li');
         
-//         listItem.innerHTML = `<input type="checkbox" class="transaction-checkbox" data-index="${index}">` +
-//                              `${formattedDate} - $${transaction.amount} - ${category}`;
+        listItem.innerHTML = `<input type="checkbox" class="transaction-checkbox" data-index="${index}">` +
+                             `${formattedDate} - $${transaction.amount} - ${category}`;
 
-//         listItem.ondblclick = function() {
-//             editTransaction(index);
-//         };
+        listItem.ondblclick = function() {
+            editTransaction(index);
+        };
 
-//         transactionList.appendChild(listItem);
-//     });
-// }
+        transactionList.appendChild(listItem);
+    });
+}
 
 // Handle null or missing categories
 function handleNullCategories(transaction) {
@@ -327,11 +308,11 @@ function displayBarGraphCurrentMonth() {
 
     // Loop through all transactions and aggregate totals
     currentMonthData.forEach(transaction => {
-        let category = transaction.category || "Other"; // Fixed typo: transaction.category
+        let category = transaction.category || "Other"; // Handle null categories
         if (!categoryTotals[category]) {
             categoryTotals[category] = 0;
         }
-        categoryTotals[category] += transaction.amount; // Fixed typo: transaction.amount
+        categoryTotals[category] += transaction.amount;
     });
 
     // Filter out categories that have a total amount greater than 0
@@ -347,10 +328,10 @@ function displayBarGraphCurrentMonth() {
     currentMonthChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: validCategories, // Show only categories with amounts
+            labels: validCategories,
             datasets: [{
                 label: 'Expenses for Current Month',
-                data: validTotals, // Data for valid categories only
+                data: validTotals,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -362,7 +343,7 @@ function displayBarGraphCurrentMonth() {
             scales: {
                 x: {
                     beginAt: 50, // Start x-axis (dollar axis) at 50
-                    max: 500, // Maximum value for x-axis (dollar axis)
+                    max: 500,
                     ticks: {
                         stepSize: 50, // Step increments of 50
                     },
@@ -390,35 +371,30 @@ function displayBarGraphPast3Months() {
     const ctx = document.getElementById('barChartPast3Months').getContext('2d');
     const past3MonthsData = filterTransactionsByPast3Months();
     
-    // Reset the category totals object
     let categoryTotals = {};
 
-    // Loop through all transactions and aggregate totals
     past3MonthsData.forEach(transaction => {
-        let category = transaction.category || "Other"; // Fixed typo: transaction.category
+        let category = transaction.category || "Other";
         if (!categoryTotals[category]) {
             categoryTotals[category] = 0;
         }
-        categoryTotals[category] += transaction.amount; // Fixed typo: transaction.amount
+        categoryTotals[category] += transaction.amount;
     });
 
-    // Filter out categories that have a total amount greater than 0
     const validCategories = Object.keys(categoryTotals).filter(category => categoryTotals[category] > 0);
     const validTotals = validCategories.map(category => categoryTotals[category]);
 
-    // If there is an existing chart, destroy it before creating a new one
     if (past3MonthsChart) {
         past3MonthsChart.destroy();
     }
 
-    // Generate the new chart
     past3MonthsChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: validCategories, // Show only categories with amounts
+            labels: validCategories,
             datasets: [{
                 label: 'Expenses for Past 3 Months',
-                data: validTotals, // Data for valid categories only
+                data: validTotals,
                 backgroundColor: 'rgba(153, 102, 255, 0.2)',
                 borderColor: 'rgba(153, 102, 255, 1)',
                 borderWidth: 1
@@ -426,23 +402,23 @@ function displayBarGraphPast3Months() {
         },
         options: {
             responsive: true,
-            indexAxis: 'y', // Flip X and Y axis
+            indexAxis: 'y',
             scales: {
                 x: {
-                    beginAt: 50, // Start x-axis (dollar axis) at 50
-                    max: 500, // Maximum value for x-axis (dollar axis)
+                    beginAt: 50,
+                    max: 500,
                     ticks: {
-                        stepSize: 50, // Step increments of 50
+                        stepSize: 50,
                     },
                     title: {
                         display: true,
-                        text: 'Amount ($)' // Label for the x-axis
+                        text: 'Amount ($)'
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Categories' // Label for the y-axis
+                        text: 'Categories'
                     }
                 }
             }
@@ -457,36 +433,31 @@ let ytdChart = null;
 function displayBarGraphYTD() {
     const ctx = document.getElementById('barChartYTD').getContext('2d');
     const ytdData = filterTransactionsByYTD();
-    
-    // Reset the category totals object
+
     let categoryTotals = {};
 
-    // Loop through all transactions and aggregate totals
     ytdData.forEach(transaction => {
-        let category = transaction.category || "Other"; // Fixed typo: transaction.category
+        let category = transaction.category || "Other";
         if (!categoryTotals[category]) {
             categoryTotals[category] = 0;
         }
-        categoryTotals[category] += transaction.amount; // Fixed typo: transaction.amount
+        categoryTotals[category] += transaction.amount;
     });
 
-    // Filter out categories that have a total amount greater than 0
     const validCategories = Object.keys(categoryTotals).filter(category => categoryTotals[category] > 0);
     const validTotals = validCategories.map(category => categoryTotals[category]);
 
-    // If there is an existing chart, destroy it before creating a new one
     if (ytdChart) {
         ytdChart.destroy();
     }
 
-    // Generate the new chart
     ytdChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: validCategories, // Show only categories with amounts
+            labels: validCategories,
             datasets: [{
                 label: 'Year-to-Date Expenses',
-                data: validTotals, // Data for valid categories only
+                data: validTotals,
                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
                 borderColor: 'rgba(255, 159, 64, 1)',
                 borderWidth: 1
@@ -494,23 +465,23 @@ function displayBarGraphYTD() {
         },
         options: {
             responsive: true,
-            indexAxis: 'y', // Flip X and Y axis
+            indexAxis: 'y',
             scales: {
                 x: {
-                    beginAt: 50, // Start x-axis (dollar axis) at 50
-                    max: 500, // Maximum value for x-axis (dollar axis)
+                    beginAt: 50,
+                    max: 500,
                     ticks: {
-                        stepSize: 50, // Step increments of 50
+                        stepSize: 50,
                     },
                     title: {
                         display: true,
-                        text: 'Amount ($)' // Label for the x-axis
+                        text: 'Amount ($)'
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Categories' // Label for the y-axis
+                        text: 'Categories'
                     }
                 }
             }
@@ -525,17 +496,14 @@ function filterTransactionsByCurrentMonth() {
     const currentYear = today.getFullYear();
 
     return transactions.filter(transaction => {
-        // Check if the date is in MM/DD/YYYY or DD/MM/YYYY
         let [part1, part2, year] = transaction.date.split('/').map(Number);
         let month, day;
 
         if (part1 > 12) {
-            // Date format is DD/MM/YYYY
             day = part1;
-            month = part2 - 1; // Adjust for 0-indexed months in JS Date
+            month = part2 - 1;
         } else {
-            // Date format is MM/DD/YYYY
-            month = part1 - 1; // Adjust for 0-indexed months in JS Date
+            month = part1 - 1;
             day = part2;
         }
 
@@ -545,71 +513,32 @@ function filterTransactionsByCurrentMonth() {
 
 function filterTransactionsByPast3Months() {
     const today = new Date();
-    const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 2, 1); // 3 months back (start of that month)
+    const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 2, 1);
 
     return transactions.filter(transaction => {
-        let transactionDate = parseDate(transaction.date); // Normalize the date
+        let transactionDate = parseDate(transaction.date);
         return transactionDate >= threeMonthsAgo && transactionDate <= today;
     });
 }
 
 function filterTransactionsByYTD() {
     const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 1); // January 1st of the current year
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
 
     return transactions.filter(transaction => {
-        let transactionDate = parseDate(transaction.date); // Normalize the date
+        let transactionDate = parseDate(transaction.date);
         return transactionDate >= startOfYear && transactionDate <= today;
     });
 }
 
-
-// Populate transaction list with checkboxes and double-click to edit
-let transactionToEditIndex = null; // Keep track of which transaction is being edited
-
-// Populate the transaction list
-function handleNullCategories(transaction) {
-    // Correct the typo by using dot notation to access the category
-    return transaction.category ? transaction.category : "Other";
-}
-
-// Populate the transaction list
-function populateTransactionList() {
-    let transactionList = document.getElementById('transaction-list');
-    transactionList.innerHTML = ''; // Clear existing transactions
-
-    transactions.forEach(function(transaction, index) {
-        const formattedDate = formatDateForDisplay(transaction.date);
-        let category = handleNullCategories(transaction);  // Corrected here
-        let listItem = document.createElement('li');
-        
-        listItem.innerHTML = `<input type="checkbox" class="transaction-checkbox" data-index="${index}">` +
-                             `${formattedDate} - $${transaction.amount} - ${category}`;
-
-        listItem.ondblclick = function() {
-            editTransaction(index);
-        };
-
-        transactionList.appendChild(listItem);
-    });
-}
-
-// Update category dropdown population to ensure "Other" is always present
-function populateCategoryDropdown() {
-    let categoryDropdown = document.getElementById('category-dropdown');
-    categoryDropdown.innerHTML = ''; // Clear any existing options
-
-    // Ensure "Other" is always present in categories
-    if (!categories.includes("Other")) {
-        categories.push("Other");
+// Helper function to parse date
+function parseDate(dateString) {
+    const dateParts = dateString.split('/');
+    if (parseInt(dateParts[0], 10) <= 12) {
+        return new Date(dateParts[2] + '-' + dateParts[0] + '-' + dateParts[1]);
+    } else {
+        return new Date(dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0]);
     }
-
-    categories.forEach(category => {
-        let option = document.createElement('option');
-        option.value = category;
-        option.text = category;
-        categoryDropdown.appendChild(option);
-    });
 }
 
 // Function to clean up and summarize transactions
@@ -622,20 +551,20 @@ function cleanUpTransactions() {
     let summaryByCategory = {};
 
     transactions = transactions.filter(transaction => {
-        let transactiondate = parseDate(transaction.date);
+        let transactionDate = parseDate(transaction.date);
 
         // Remove transactions older than 1 year
-        if (transaction.date < oneYearAgo) {
+        if (transactionDate < oneYearAgo) {
             return false;
         }
 
         // Summarize transactions older than 3 months
-        if (transaction.date < threeMonthsAgo) {
-            const category = transactioncategory || "Other";
+        if (transactionDate < threeMonthsAgo) {
+            const category = transaction.category || "Other";
             if (!summaryByCategory[category]) {
                 summaryByCategory[category] = 0;
             }
-            summaryByCategory[category] += transactionamount;
+            summaryByCategory[category] += transaction.amount;
             return false; // Do not keep the transaction details
         }
 
@@ -644,7 +573,7 @@ function cleanUpTransactions() {
 
     // Create summarized transactions and add them to the transactions array
     Object.keys(summaryByCategory).forEach(category => {
-        summarizedTransactions({
+        summarizedTransactions.push({
             date: "Summary (3+ Months Ago)", // Placeholder date
             amount: summaryByCategory[category],
             category: category
@@ -658,16 +587,6 @@ function cleanUpTransactions() {
     localStorage.setItem('budgetTracker_transactions', JSON.stringify(transactions));
 }
 
-// Helper function to parse date
-function parseDate(dateString) {
-    const dateParts = dateString.split('/');  // Ensure dot operator is correct
-    if (parseInt(dateParts[0], 10) <= 12) {
-        return new Date(dateParts[2] + '-' + dateParts[0] + '-' + dateParts[1]);  // Avoid template literals for now
-    } else {
-        return new Date(dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0]);  // Avoid template literals for now
-    }
-}
-
 // Run cleanup before the window unloads
 window.onbeforeunload = function() {
     cleanUpTransactions();
@@ -675,44 +594,40 @@ window.onbeforeunload = function() {
 
 // Add event listener for the cleanup button in settings
 document.getElementById('cleanup-btn').addEventListener('click', function() {
-    cleanUpTransactions(); // Call the cleanup function
-    alert('Transactions cleaned up successfully!'); // Optional: Notify the user
-    populateTransactionList(); // Refresh the transaction list after cleanup
+    cleanUpTransactions();
+    alert('Transactions cleaned up successfully!');
+    populateTransactionList();
 });
 
+// Function to open settings modal
 function openSettings() {
-    populateCategoryList();  // Always populate categories when opening settings
+    populateCategoryList();
     document.getElementById('settings-modal').style.display = 'block';
 }
 
+// Function to save settings
 function saveSettings() {
-    // Collect data from settings modal (e.g., new categories or any other settings)
     const newCategories = Array.from(document.querySelectorAll('.category-checkbox'))
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.getAttribute('data-index'));
 
-    // Update categories in localStorage
     const updatedCategories = newCategories.map(index => categories[parseInt(index)]);
     localStorage.setItem('budgetTracker_categories', JSON.stringify(updatedCategories));
 
-    // Close the settings modal
     closeSettings();
-
-    // Optional: Provide feedback to the user
     alert('Settings saved successfully!');
 }
-``
 
+// Function to close settings modal
 function closeSettings() {
     document.getElementById('settings-modal').style.display = 'none';
 }
 
-// Update to fetch categories correctly from 'budgetTracker_categories' key
+// Populate category dropdown
 function populateCategoryDropdown() {
     let categoryDropdown = document.getElementById('category-dropdown');
-    categoryDropdown.innerHTML = ''; // Clear any existing options
+    categoryDropdown.innerHTML = '';
 
-    // Fetch categories from the correct localStorage key 'budgetTracker_categories'
     let updatedCategories = JSON.parse(localStorage.getItem('budgetTracker_categories')) || ['Other'];
 
     updatedCategories.forEach(category => {
@@ -723,12 +638,11 @@ function populateCategoryDropdown() {
     });
 }
 
-// Update populateCategoryList to use the correct localStorage key 'budgetTracker_categories'
+// Populate category list in settings
 function populateCategoryList() {
     let categoryList = document.getElementById('category-list');
-    categoryList.innerHTML = ''; // Clear the list
+    categoryList.innerHTML = '';
 
-    // Fetch categories from the correct localStorage key 'budgetTracker_categories'
     let updatedCategories = JSON.parse(localStorage.getItem('budgetTracker_categories')) || ['Other'];
 
     updatedCategories.forEach((category, index) => {
@@ -741,57 +655,51 @@ function populateCategoryList() {
     });
 }
 
-// Call populateCategoryDropdown and populateCategoryList after fetching from the correct localStorage key
+// Call populate functions on page load
 populateCategoryDropdown();
 populateCategoryList();
 
-
-// Change how categories are saved to localStorage
-// Save the categories under the 'budgetTracker_categories' key instead of 'categories' key
+// Add a new category
 function addCategory() {
     let newCategory = document.getElementById('new-category').value.trim();
 
     if (newCategory && !categories.includes(newCategory)) {
         categories.push(newCategory);
-        localStorage.setItem('budgetTracker_categories', JSON.stringify(categories)); // Fix: Use 'budgetTracker_categories'
-        populateCategoryList();  // Update the category list after adding
-        populateCategoryDropdown();  // Update the dropdown in the main UI
-        document.getElementById('new-category').value = ''; // Clear input field
+        localStorage.setItem('budgetTracker_categories', JSON.stringify(categories));
+        populateCategoryList();
+        populateCategoryDropdown();
+        document.getElementById('new-category').value = '';
     } else {
         alert("Category already exists or input is empty.");
     }
 }
 
-// Update the saveEditedCategory function to use the correct localStorage key
+// Save edited category
 function saveEditedCategory(index, newCategory) {
     if (newCategory && !categories.includes(newCategory)) {
         categories[index] = newCategory;
-        localStorage.setItem('budgetTracker_categories', JSON.stringify(categories)); // Fix: Use 'budgetTracker_categories'
+        localStorage.setItem('budgetTracker_categories', JSON.stringify(categories));
 
-        populateCategoryList();  // Re-populate the list after edit
-        populateCategoryDropdown();  // Update the dropdown with new category
+        populateCategoryList();
+        populateCategoryDropdown();
     } else {
         alert("Category already exists or input is empty.");
     }
 }
 
-// Update the deleteSelectedCategories function to use the correct localStorage key
+// Delete selected categories
 function deleteSelectedCategories() {
     let checkboxes = document.querySelectorAll('.category-checkbox:checked');
 
-    // Collect indexes of categories to delete
     let indexesToDelete = [];
     checkboxes.forEach(checkbox => {
         indexesToDelete.push(parseInt(checkbox.getAttribute('data-index')));
     });
 
-    // Filter out the selected categories
     categories = categories.filter((_, index) => !indexesToDelete.includes(index));
 
-    // Update localStorage
-    localStorage.setItem('budgetTracker_categories', JSON.stringify(categories)); // Fix: Use 'budgetTracker_categories'
+    localStorage.setItem('budgetTracker_categories', JSON.stringify(categories));
 
-    populateCategoryList();  // Refresh the category list
-    populateCategoryDropdown();  // Refresh the category dropdown
+    populateCategoryList();
+    populateCategoryDropdown();
 }
-
