@@ -8,7 +8,7 @@ const urlsToCache = [
   '/budget-tracker/css/styles.css',
   '/budget-tracker/js/app.js',
   '/budget-tracker/manifest.json',
-  '/budget-tracker/images/icon-192x192.png',
+  '/budget-tracker/images/icon.png',
   '/budget-tracker/images/settings.png', // Include any additional required assets
   '/budget-tracker/images/graph.png',
   '/budget-tracker/images/trash-can.png',
