@@ -8,7 +8,7 @@
     "description": "Track your budget, expenses, and balance",
     "icons": [
         {
-            "src": "images/icon.png",
+            "src": "/budget-tracker/images/icon.png",
             "sizes": "192x192",
             "type": "image/png"
         }
