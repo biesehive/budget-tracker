@@ -1,14 +1,14 @@
 {
     "name": "Budget Tracker PWA",
     "short_name": "BudgetTracker",
-    "start_url": "/budget-tracker/",
+    "start_url": "/budget-tracker/index.html",
     "scope": "/budget-tracker/",
     "display": "standalone",
     "background_color": "#ffffff",
     "description": "Track your budget, expenses, and balance",
     "icons": [
         {
-            "src": "images/icon-192x192.png",
+            "src": "images/icon.png",
             "sizes": "192x192",
             "type": "image/png"
         }
