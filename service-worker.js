@@ -9,7 +9,7 @@ const urlsToCache = [
   '/budget-tracker/js/app.js',
   '/budget-tracker/manifest.json',
   '/budget-tracker/images/icon.png',
-  '/budget-tracker/images/settings.png', // Include any additional required assets
+  '/budget-tracker/images/settings.png',
   '/budget-tracker/images/graph.png',
   '/budget-tracker/images/trash-can.png',
 ];
@@ -19,10 +19,11 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
+        console.log('Opened cache:', CACHE_NAME);
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting(); // Force the waiting service worker to become active
 });
 
 // Intercept fetch requests and serve cached assets if available
@@ -32,9 +33,9 @@ self.addEventListener('fetch', event => {
       .then(response => {
         // Return the cached response if found, otherwise fetch from the network
         return response || fetch(event.request).catch(() => {
-          // If the fetch fails (e.g., offline), serve a fallback page
+          // If fetch fails (e.g., offline), serve fallback content
           if (event.request.mode === 'navigate') {
-            return caches.match('/budget-tracker/index.html');
+            return caches.match('/budget-tracker/index.html'); // Fallback to cached index.html
           }
         });
       })
@@ -50,10 +51,11 @@ self.addEventListener('activate', event => {
         cacheNames.map(cacheName => {
           if (!cacheWhitelist.includes(cacheName)) {
             console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
+            return caches.delete(cacheName); // Delete old caches
           }
         })
       );
     })
   );
+  self.clients.claim(); // Take control of all clients immediately
 });
