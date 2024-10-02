@@ -95,6 +95,9 @@ async function initApp() {
         await saveToIndexedDB('categories', { name: 'default', categories });
     }
 
+    // Check for last reset date and reset if necessary
+    await checkAndResetForNewMonth();
+    
     // Retrieve starting balance from IndexedDB or set default
     let startingBalanceData = await getFromIndexedDB('budgetData', 'startingBalance');
     let startingBalance = Number(startingBalanceData?.value) || 5500;
@@ -132,6 +135,29 @@ async function initApp() {
 
     // Populate category dropdown
     await populateCategoryDropdown();
+}
+
+// Check and reset if it's a new month
+async function checkAndResetForNewMonth() {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    // Get the last reset date from IndexedDB
+    let lastResetData = await getFromIndexedDB('budgetData', 'lastResetDate');
+    let lastResetDate = lastResetData ? new Date(lastResetData.value) : null;
+
+    // Check if it's a new month or year compared to the last reset
+    if (!lastResetDate || lastResetDate.getMonth() !== currentMonth || lastResetDate.getFullYear() !== currentYear) {
+        // Clear the transactions store to reset expenses
+        await clearIndexedDBObjectStore('transactions');
+
+        // Save the current date as the new last reset date
+        await saveToIndexedDB('budgetData', { key: 'lastResetDate', value: today.toISOString() });
+
+        // Reset total expenses to 0 in the UI
+        document.getElementById("total-expenses").innerText = "$ 0";
+    }
 }
 
 // Function to retrieve all transactions from IndexedDB
