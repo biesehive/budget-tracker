@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self'; connect-src 'self';"/>
+
     <title>Budget Tracker</title>
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
@@ -44,13 +46,13 @@
         </div>
 
         <!-- Bill It Button -->
-        <button id="bill-button" onclick="billIt()">Pay Up</button>
+        <button id="bill-button">Pay Up</button>
 
         <!-- Total Expenses and Remaining Balance -->
         <h3>Total Damage</h3>
         <div class="total-expenses">
             <span id="total-expenses" ondblclick="openTransactions()">$ 0</span>
-            <span class="dropdown" ondblclick="openTransactions()">▼</span>
+            <span class="dropdown">▼</span>
         </div>
 
         <h3>What's Left</h3>
@@ -156,7 +158,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-..." crossorigin="anonymous"></script>
+<!--     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
     <script src="js/app.js"></script>
 </body>
 </html>
