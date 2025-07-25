@@ -121,22 +121,37 @@ async function initApp() {
 
     // Double-click functionality to edit starting balance
     document.getElementById("starting-balance").ondblclick = editStartingBalance;
+    document.getElementById("close-edit-transaction").addEventListener("click", closeModal('edit-transaction-modal'));
+    document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
+    document.getElementById("delete-transaction").addEventListener("click", deleteSelectedTransactions);
+    document.getElementById("open-transactions").addEventListener("click", openTransactions);
 
     // Event listener for the "Bill It" button
     document.getElementById("bill-button").addEventListener("click", billIt);
+    // Event listener for save settings button
+    document.getElementById("save-settings-btn").addEventListener("click", saveSettings);
+    document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
 
     // Add event listeners for double-click functionality
     document.getElementById('total-expenses').ondblclick = openTransactions;
     document.querySelector('.settings-icon').ondblclick = openSettings;
     document.querySelector('.graph-icon').ondblclick = openGraph;
+    document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
+
+    // Event listener for open settings image click
+    // document.getElementById("open-settings").addEventListener("click", openSettings);
+    // document.getElementById("open-graph").addEventListener("click", openGraph);
 
     // Populate category dropdown
     await populateCategoryDropdown();
+    document.getElementById("delete-category").addEventListener("click", deleteSelectedCategories);
+    document.getElementById("add-category").addEventListener("click", addCategory);
+
 }
 
 // Function to retrieve all transactions from IndexedDB
 function getAllTransactions() {
-    
+     
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(['transactions'], 'readonly');
         const store = transaction.objectStore('transactions');
