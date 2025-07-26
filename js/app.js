@@ -133,12 +133,12 @@ async function initApp() {
     document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
 
     // Add event listeners for double-click functionality
-    document.getElementById('total-expenses').ondblclick = openTransactions;
-    document.querySelector('.settings-icon').ondblclick = openSettings;
-    document.querySelector('.graph-icon').ondblclick = openGraph;
+    // document.querySelector('.settings-icon').onclick = openSettings;
+    // document.querySelector('.graph-icon').onclick = openGraph;
     document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
 
     // Event listener for open settings image click
+    document.getElementById('total-expenses').addEventListener("click", openTransactions);
     document.getElementById("open-settings").addEventListener("click", openSettings);
     document.getElementById("open-graph").addEventListener("click", openGraph);
 
@@ -596,7 +596,9 @@ async function filterTransactionsByYTD() {
 
 // Close any modal
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+    var modal = document.getElementById(modalId);
+    modal.style.display = "none";
+    // document.getElementById(modalId).style.display = 'none';
 }
 
 // Edit Category Function
