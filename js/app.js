@@ -125,6 +125,9 @@ async function initApp() {
     document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
     document.getElementById("delete-transaction").addEventListener("click", deleteSelectedTransactions);
     document.getElementById("open-transactions").addEventListener("dblclick", openTransactions);
+    document.getElementById("total-expenses").addEventListener("dblclick", openGraph);
+    
+    document.getElementById("open-graph").addEventListener("click", openGraph);
 
     // Event listener for the "Bill It" button
     document.getElementById("bill-button").addEventListener("click", billIt);
@@ -133,14 +136,13 @@ async function initApp() {
     document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
 
     // Add event listeners for double-click functionality
-    // document.querySelector('.settings-icon').onclick = openSettings;
-    // document.querySelector('.graph-icon').onclick = openGraph;
+    document.querySelector('.settings-icon').onclick = openSettings;
+    document.querySelector('.graph-icon').onclick = openGraph;
     document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
 
     // Event listener for open settings image click
-    document.getElementById('total-expenses').addEventListener("click", openTransactions);
-    document.getElementById("open-settings").addEventListener("click", openSettings);
-    document.getElementById("open-graph").addEventListener("click", openGraph);
+    // document.getElementById("open-settings").addEventListener("click", openSettings);
+    // document.getElementById("open-graph").addEventListener("click", openGraph);
 
     // Populate category dropdown
     await populateCategoryDropdown();
