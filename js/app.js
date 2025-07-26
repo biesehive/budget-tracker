@@ -124,7 +124,7 @@ async function initApp() {
     document.getElementById("close-edit-transaction").addEventListener("click", closeModal('edit-transaction-modal'));
     document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
     document.getElementById("delete-transaction").addEventListener("click", deleteSelectedTransactions);
-    document.getElementById("open-transactions").addEventListener("click", openTransactions);
+    document.getElementById("open-transactions").addEventListener("dblclick", openTransactions);
 
     // Event listener for the "Bill It" button
     document.getElementById("bill-button").addEventListener("click", billIt);
@@ -139,8 +139,8 @@ async function initApp() {
     document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
 
     // Event listener for open settings image click
-    // document.getElementById("open-settings").addEventListener("click", openSettings);
-    // document.getElementById("open-graph").addEventListener("click", openGraph);
+    document.getElementById("open-settings").addEventListener("click", openSettings);
+    document.getElementById("open-graph").addEventListener("click", openGraph);
 
     // Populate category dropdown
     await populateCategoryDropdown();
