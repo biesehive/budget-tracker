@@ -686,7 +686,7 @@ async function populateCategoryList() {
             <span class="category-name" id="category-${index}">${category}</span>
         `;
 
-        listItem.querySelector('.category-name').ondblclick = () => editCategory(index);
+        listItem.querySelector('.category-name').onclick = () => editCategory(index);
 
         categoryList.appendChild(listItem);
     });
