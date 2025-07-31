@@ -124,8 +124,8 @@ async function initApp() {
     document.getElementById("close-edit-transaction").addEventListener("click", closeModal('edit-transaction-modal'));
     document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
     document.getElementById("delete-transaction").addEventListener("click", deleteSelectedTransactions);
-    document.getElementById("open-transactions").addEventListener("dblclick", openTransactions);
-    document.getElementById("total-expenses").addEventListener("dblclick", openGraph);
+    document.getElementById("open-transactions").addEventListener("click", openTransactions);
+    document.getElementById("total-expenses").addEventListener("click", openGraph);
     
     document.getElementById("open-graph").addEventListener("click", openGraph);
 
