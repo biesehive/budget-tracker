@@ -1,3 +1,4 @@
+/* Base Styles */
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -17,16 +18,19 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Balance Styling */
 .balance {
     font-weight: bolder;
     color: rgb(30, 206, 62);
 }
 
+/* Header and Footer Sections */
 .header, .total-expenses, .remaining-balance, .footer {
     margin-bottom: 20px;
     font-weight: bold;
 }
 
+/* Expenses and Remaining Balance */
 .total-expenses {
     color: red;
 }
@@ -36,44 +40,38 @@ body {
     font-size: larger;
 }
 
+/* Buttons */
 button {
     padding: 10px;
     border: none;
     border-radius: 5px;
     font-size: 16px;
-    margin: 15px;
+    margin: 15px 0;
     background-color: orange;
-}
-
-#bill-button {
-    background-color: orange;
-    padding: 10px;
-    border: none;
-    font-weight: bolder;
-    border-radius: 5px;
-    font-size: 16px;
-    margin: 15px;
-    width: 80%;
     cursor: pointer;
 }
 
+#bill-button {
+    width: 80%;
+}
+
+/* Category + Amount Input Section */
 .category-amount-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     margin-bottom: 10px;
-    
-    gap: 10px; /* Adjusts the space between dropdown and input */
 }
 
 #category-dropdown {
-    margin-top:  10px;
     width: 150px;
     border: none;
     font-size: 16px;
     cursor: pointer;
 }
 
+/* Footer Icons */
 .footer-icons {
     display: flex;
     justify-content: space-between;
@@ -85,143 +83,23 @@ button {
     cursor: pointer;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 9998; /* Ensure this is below the edit modal */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 400px; /* Set max-width for smaller devices */
-    position: relative;
-}
-
-#edit-transaction-modal {
-    z-index: 9999; /* Ensure this modal is on top of the transaction modal */
-}
-
-/* Reduce the size of the amount input */
-.small-input {
-    width: 80px; /* Adjust width to make it smaller */
-    text-align: right;
-}
-
-/* Flexbox to align Amount and Category on the same line */
-.edit-transaction-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px; /* Add space between the amount and category */
-}
-
-#transactions-modal {
-    z-index: 9998; /* Transaction modal stays below the edit modal */
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover, .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-ul li {
-    margin: 5px 0;
-}
-
-ul li button {
-    margin-left: 10px;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover, .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Align the category dropdown, amount input, and Bill It! button on the same line */
-/* Category, slider, and amount container */
-.category-amount-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 10px; /* Adjust space between the dropdown and input */
-}
-
-
-/* Adjust the dropdown width */
-#category-dropdown {
-    width: 150px;
-}
-
-
+/* Slider Section */
 .slider-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;  /* Ensure the slider and values take up the full container width */
+    width: 100%;
     margin-bottom: 10px;
 }
 
 .slider-container span {
-    font-size: 14px;  /* Reduce font size of min/max values */
+    font-size: 14px;
     margin: 0 5px;
 }
 
 #slider {
     flex-grow: 2;
-    margin: 0 10px; /* Add spacing between the slider and min/max */
-    width: auto; 
+    margin: 0 10px;
 }
 
 #slider-amount {
@@ -234,6 +112,65 @@ ul li button {
     width: 100px;
 }
 
+/* Modal Base */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9998;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    position: relative;
+}
+
+/* Edit Modal z-index override */
+#edit-transaction-modal {
+    z-index: 9999;
+}
+
+/* Transaction Modal behind Edit */
+#transactions-modal {
+    z-index: 9998;
+}
+
+/* Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* List Styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin: 5px 0;
+}
+
+/* Trash Icon in Modals */
 .trash-icon {
     width: 30px;
     cursor: pointer;
@@ -242,7 +179,16 @@ ul li button {
     margin-top: -10px;
 }
 
-/* Ensure the transaction modal is behind the edit modal */
-#transactions-modal {
-    z-index: 9998; /* Behind the edit modal */
+/* Edit Modal Inputs */
+.edit-transaction-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.small-input {
+    width: 80px;
+    text-align: right;
 }
