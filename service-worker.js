@@ -4,13 +4,15 @@ const CACHE_NAME = 'budget-tracker-v1';
 const ASSETS_TO_CACHE = [
   '/budget-tracker/',
   '/budget-tracker/index.html',
-  '/budget-tracker/app.js',
+  '/budget-tracker/js/app.js',
+  '/budget-tracker/css/styles.css',
   '/budget-tracker/manifest.json',
-  '/budget-tracker/styles.css',
-  '/budget-tracker/icons/icon-192x192.png',
-  '/budget-tracker/icons/icon-512x512.png',
-  '/budget-tracker/images/trash-can.png'
+  '/budget-tracker/images/icon.png',
+  '/budget-tracker/images/trash-can.png',
+  '/budget-tracker/images/settings.png',
+  '/budget-tracker/images/graph.png'
 ];
+
 
 self.addEventListener('install', event => {
   event.waitUntil(
