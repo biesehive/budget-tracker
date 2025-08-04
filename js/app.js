@@ -121,8 +121,11 @@ async function initApp() {
 
     // Double-click functionality to edit starting balance
     document.getElementById("starting-balance").ondblclick = editStartingBalance;
-    document.getElementById("close-edit-transaction").addEventListener("click", closeModal('edit-transaction-modal'));
-    document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
+    // document.getElementById("close-edit-transaction").addEventListener("click", closeModal('edit-transaction-modal'));
+    // document.getElementById("close-transactions").addEventListener("click", closeModal('transactions-modal'));
+    document.getElementById("close-edit-transaction").addEventListener("click", () => closeModal('edit-transaction-modal'));
+    document.getElementById("close-transactions").addEventListener("click", () => closeModal('transactions-modal'));
+
     document.getElementById("delete-transaction").addEventListener("click", deleteSelectedTransactions);
     document.getElementById("open-transactions").addEventListener("click", openTransactions);
     document.getElementById("total-expenses").addEventListener("click", openGraph);
@@ -133,13 +136,15 @@ async function initApp() {
     document.getElementById("bill-button").addEventListener("click", billIt);
     // Event listener for save settings button
     document.getElementById("save-settings-btn").addEventListener("click", saveSettings);
-    document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
+    // document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
+    document.getElementById("close-settings").addEventListener("click", () => closeModal('settings-modal'));
 
     // Add event listeners for double-click functionality
     // document.querySelector('.settings-icon').onclick = openSettings;
     // document.querySelector('.graph-icon').onclick = openGraph;
-    document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
-
+    // document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
+    document.getElementById("close-graph").addEventListener("click", () => closeModal('graph-modal'));
+    
     // Event listener for open settings image click
     document.getElementById("open-settings").addEventListener("click", openSettings);
     document.getElementById("open-graph").addEventListener("click", openGraph);
