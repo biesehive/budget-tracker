@@ -150,7 +150,11 @@ async function initApp() {
     document.getElementById("close-graph").addEventListener("click", () => closeModal('graph-modal'));
     
     // Event listener for open settings image click
-    document.getElementById("open-settings").addEventListener("click", openSettings);
+    // document.getElementById("open-settings").addEventListener("click", openSettings);
+    const settingsIcon = document.getElementById("open-settings");
+    if (settingsIcon) {
+        settingsIcon.addEventListener("click", openSettings);
+    } 
 
     document.getElementById("open-graph").addEventListener("click", openGraph);
 
