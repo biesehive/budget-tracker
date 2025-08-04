@@ -33,9 +33,13 @@ request.onupgradeneeded = function(event) {
 };
 
 // On success
+// request.onsuccess = function(event) {
+//     db = event.target.result;
+//     initApp();
+// };
 request.onsuccess = function(event) {
     db = event.target.result;
-    initApp();
+    window.addEventListener('DOMContentLoaded', initApp);
 };
 
 request.onerror = function(event) {
