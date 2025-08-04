@@ -1,5 +1,3 @@
-// app.js — Full CSP-compliant JavaScript logic
-
 // Register the service worker if supported
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
