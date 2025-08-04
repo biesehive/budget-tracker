@@ -50,4 +50,5 @@ self.addEventListener('fetch', event => {
       return cachedResponse || fetch(event.request);
     })
   );
+
 });
