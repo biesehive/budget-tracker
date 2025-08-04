@@ -19,7 +19,8 @@
     <!-- <base href="/"> -->
     <!-- Add base to handle relative paths Production -->
     <base href="/budget-tracker/">
-    <script>
+    <script src="/js/app.js" defer></script>
+    <!-- <script>
         //force https browsing
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
             location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
@@ -36,10 +37,8 @@
             .catch(() => {
                 const versionE1 = document.getElementById('app-version');
                 if(versionE1) versionE1.textContent = 'n/a';
-        });
-
-        
-    </script>
+        });        
+    </script> -->
 
 </head>
 <body>

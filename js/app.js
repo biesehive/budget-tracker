@@ -42,6 +42,25 @@ request.onsuccess = function(event) {
     window.addEventListener('DOMContentLoaded', initApp);
 };
 
+// Enforce HTTPS unless localhost
+if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+}
+
+// Load version from manifest and display it
+fetch('manifest.json')
+    .then(response => response.json())
+    .then(manifest => {
+        const version = manifest.version || 'n/a';
+        const versionEl = document.getElementById('app-version');
+        if (versionEl) versionEl.textContent = version;
+    })
+    .catch(() => {
+        const versionEl = document.getElementById('app-version');
+        if (versionEl) versionEl.textContent = 'n/a';
+    }
+);
+
 request.onerror = function(event) {
     console.error('Error opening IndexedDB:', event.target.errorCode);
 };
@@ -140,25 +159,33 @@ async function initApp() {
     document.getElementById("bill-button").addEventListener("click", billIt);
     // Event listener for save settings button
     document.getElementById("save-settings-btn").addEventListener("click", saveSettings);
-    // document.getElementById("close-settings").addEventListener("click", closeModal('settings-modal'));
-    document.getElementById("close-settings").addEventListener("click", () => closeModal('settings-modal'));
-
-    // Add event listeners for double-click functionality
-    // document.querySelector('.settings-icon').onclick = openSettings;
-    // document.querySelector('.graph-icon').onclick = openGraph;
-    // document.getElementById("close-graph").addEventListener("click", closeModal('graph-modal'));
-    document.getElementById("close-graph").addEventListener("click", () => closeModal('graph-modal'));
     
-    // Event listener for open settings image click
-    // document.getElementById("open-settings").addEventListener("click", openSettings);
-    const settingsIcon = document.getElementById("open-settings");
-    if (settingsIcon) {
-        settingsIcon.addEventListener("click", openSettings);
-    } else {
-        console.warn("open-settings element not found.");
-    }
+    // Attach all modal openers
+    window.addEventListener('DOMContentLoaded', () => {
+        const settingsIcon = document.getElementById("open-settings");
+        if (settingsIcon) {
+            settingsIcon.addEventListener("click", openSettings);
+        } else {
+            console.warn("#open-settings element not found.");
+        }
 
-    document.getElementById("open-graph").addEventListener("click", openGraph);
+        const graphIcon = document.getElementById("open-graph");
+        if (graphIcon) {
+            graphIcon.addEventListener("click", openGraph);
+        } else {
+            console.warn("#open-graph element not found.");
+        }
+
+        const closeGraphBtn = document.getElementById("close-graph");
+        if (closeGraphBtn) {
+            closeGraphBtn.addEventListener("click", () => closeModal("graph-modal"));
+        }
+
+        const closeSettingsBtn = document.getElementById("close-settings");
+        if (closeSettingsBtn) {
+            closeSettingsBtn.addEventListener("click", () => closeModal("settings-modal"));
+        }
+    });
 
     // Populate category dropdown
     await populateCategoryDropdown();
