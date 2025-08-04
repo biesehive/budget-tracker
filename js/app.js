@@ -154,7 +154,9 @@ async function initApp() {
     const settingsIcon = document.getElementById("open-settings");
     if (settingsIcon) {
         settingsIcon.addEventListener("click", openSettings);
-    } 
+    } else {
+        console.warn("open-settings element not found.");
+    }
 
     document.getElementById("open-graph").addEventListener("click", openGraph);
 
