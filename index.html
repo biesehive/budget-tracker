@@ -2,52 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewpo rt" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self'; connect-src 'self';"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Enforced CSP for security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self'; connect-src 'self';" />
 
     <title>Budget Tracker</title>
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Manifest Development-->
-    <!-- <link rel="manifest" href="manifest.json"> -->
-    <!-- Manifest Production--> 
-    <link rel="manifest" href="/manifest.json"> 
-    <noscript><strong>This app requires JavaScript to function properly.  Please enable javaScript in your browser.</strong></noscript>
+    <!-- Manifest Production -->
+    <link rel="manifest" href="/budget-tracker/manifest.json"> 
 
-    <!-- Add base to handle relative paths Development -->
-    <!-- <base href="/"> -->
+    <!-- No JavaScript fallback -->
+    <noscript><strong>This app requires JavaScript to function properly. Please enable JavaScript in your browser.</strong></noscript>
+
     <!-- Add base to handle relative paths Production -->
     <base href="/budget-tracker/">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-o+jYql+43+a+aKJGnsZW0D3yYZa7EOxAlA+hcyqRLPraCnxdTsmfrbPq5oI58Gek" crossorigin="anonymous"></script>
-    <script src="/js/app.js" defer></script>
-    <!-- <script>
-        //force https browsing
-        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-            location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
-        }
-
-        //load version from manifest
-        fetch('manifest.json')
-            .then(response => response.json())
-            .then(manifest => {
-                const version = manifest.version || 'n/a';
-                const versionE1 = document.getElementById('app-version');
-                if(versionE1) versionE1.textContent = version;
-            })
-            .catch(() => {
-                const versionE1 = document.getElementById('app-version');
-                if(versionE1) versionE1.textContent = 'n/a';
-        });        
-    </script> -->
-
 </head>
 <body>
     <div class="app-container">
         <!-- Starting Balance Section -->
         <div class="header">
             <h3>Starting Bal.</h3>
-            <!--  ondblclick="editStartingBalance()" -->
+            <!-- Double-click to edit starting balance -->
             <div class="balance" id="starting-balance">$ 5500</div>
         </div>
 
@@ -55,7 +32,7 @@
         <div class="category-amount-container">
             <select id="category-dropdown">
                 <option value="Other">Other</option>
-                <!-- Populate from local storage -->
+                <!-- Dynamically populated from local storage -->
             </select>
             <input type="text" id="slider-amount" placeholder="Enter amount" autocomplete="off">
         </div>
@@ -63,7 +40,7 @@
         <!-- Slider for amount selection -->
         <div class="slider-container">
             <span id="min-value">25.00</span>
-            <input type="range" id="slider" min="25" max="500" value="250" oninput="updateSliderAmount()">
+            <input type="range" id="slider" min="25" max="500" value="250">
             <span id="max-value">500.00</span>
         </div>
 
@@ -73,7 +50,7 @@
         <!-- Total Expenses and Remaining Balance -->
         <h3>Total Damage</h3>
         <div class="total-expenses">
-            <!--  ondblclick="openTransactions()" -->
+            <!-- Clickable to open transaction modal -->
             <span id="total-expenses">$ 0</span>
             <span id="open-transactions" class="dropdown">▼</span>
         </div>
@@ -87,13 +64,12 @@
         <div class="footer">
             <p id="days-left"></p>
             <p id="daily-spend"></p>
-            <p><small>v1.01</small>  
+            <p><small>v1.01</small></p>
         </div>
 
         <!-- Settings and Bar Graph Icons -->
         <div class="footer-icons">
-            <!-- <img src="/images/settings.png" alt="Settings" class="settings-icon" onclick="openSettings()">
-            <img src="/images/graph.png" alt="Graph" class="graph-icon" onclick="openGraph()"> -->
+            <!-- Clickable images -->
             <img src="./images/settings.png" alt="Settings" id="open-settings" class="settings-icon">
             <img src="./images/graph.png" alt="Graph" id="open-graph" class="graph-icon">
         </div>
@@ -102,20 +78,15 @@
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
-            <!-- <span class="close" onclick="closeModal('settings-modal')">&times;</span> -->
             <span id="close-settings" class="close">&times;</span>
             <h3>Settings</h3>
 
             <!-- Manage Categories with Trash Can -->
             <div class="categories-section">
                 <h4>Manage Categories</h4>
-                <!-- onclick="deleteSelectedCategories()" -->
                 <img src="./images/trash-can.png" alt="Delete" id="delete-category" class="trash-icon">
-                <ul id="category-list">
-                    <!-- Categories will be dynamically populated here -->
-                </ul>
+                <ul id="category-list"></ul>
                 <input type="text" id="new-category" placeholder="Add new category">
-                <!-- onclick="addCategory()" -->
                 <button id="add-category">Add Category</button>
             </div>
 
@@ -132,44 +103,37 @@
             <!-- App Version -->
             <div class="version-section">
                 <p style="margin-top: 1em; font-size: 0.9em; color: gray;">App Version: <span id="app-version">Loading...</span></p>
-            </div> 
-            <!-- Save Changes Button onclick="saveSettings()"-->
+            </div>
+
+            <!-- Buttons for save and cleanup -->
             <button id="save-settings-btn">Save Changes</button>
-            <!-- Delete old records and summarize old records -->
             <button id="cleanup-btn" class="btn btn-warning">Delete Old Transactions</button>
         </div>
     </div>
 
-
     <!-- Edit Transaction Modal -->
     <div id="edit-transaction-modal" class="modal">
         <div class="modal-content">
-            <!-- onclick="closeModal('edit-transaction-modal')" -->
             <span id="close-edit-transaction" class="close">&times;</span>
             <h3>Edit Transaction</h3>
 
-            <!-- Flex container to align Amount and Category on the same line -->
+            <!-- Flex container to align Amount and Category -->
             <div class="edit-transaction-row">
                 <label for="edit-amount">Amount:</label>
                 <input type="text" id="edit-amount" class="small-input" placeholder="Amount">
 
-                <!-- Category dropdown with no label -->
-                <select id="edit-category-dropdown">
-                    <!-- Dynamically populated in editTransaction() -->
-                </select>
+                <!-- Category dropdown -->
+                <select id="edit-category-dropdown"></select>
             </div>
             <button id="save-edit-btn">Save Changes</button>
-            <!-- <button onclick="saveTransactionEdits()">Save Changes</button> -->
         </div>
     </div>
 
     <!-- Transaction Log Modal -->
     <div id="transactions-modal" class="modal">
         <div class="modal-content">
-            <!-- onclick="closeModal('transactions-modal')" -->
             <span id="close-transactions" class="close">&times;</span>
             <h3>Transactions</h3>
-            <!-- Trash can icon for deleting selected transactions  onclick="deleteSelectedTransactions()"-->
             <img src="./images/trash-can.png" alt="Delete" id="delete-transaction" class="trash-icon">
             <ul id="transaction-list"></ul>
         </div>
@@ -178,11 +142,8 @@
     <!-- Graph Modal -->
     <div id="graph-modal" class="modal">
         <div class="modal-content">
-            <!-- onclick="closeModal('graph-modal')" -->
             <span id="close-graph" class="close">&times;</span>
             <h3>Category Summary</h3>
-
-            <!-- Graphs stacked on top of each other -->
             <h4>Current Month</h4>
             <canvas id="barChartCurrentMonth" width="400" height="200"></canvas>
 
@@ -194,8 +155,8 @@
         </div>
     </div>
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

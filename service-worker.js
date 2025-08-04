@@ -1,59 +1,61 @@
-// Define a cache name, use versioning for cache management
-const CACHE_NAME = 'budget-tracker-cache-v2';
+// service-worker.js
 
-// List of files to cache
-const urlsToCache = [
+const CACHE_NAME = 'budget-tracker-v1';
+const ASSETS_TO_CACHE = [
   '/budget-tracker/',
   '/budget-tracker/index.html',
-  '/budget-tracker/css/styles.css',
-  '/budget-tracker/js/app.js',
+  '/budget-tracker/app.js',
   '/budget-tracker/manifest.json',
-  '/budget-tracker/images/icon.png',
-  '/budget-tracker/images/settings.png', // Include any additional required assets
-  '/budget-tracker/images/graph.png',
-  '/budget-tracker/images/trash-can.png',
+  '/budget-tracker/styles.css',
+  '/budget-tracker/icons/icon-192x192.png',
+  '/budget-tracker/icons/icon-512x512.png',
+  '/budget-tracker/images/trash-can.png'
 ];
 
-// Install the service worker and cache all the specified assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
   );
 });
 
-// Intercept fetch requests and serve cached assets if available
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return the cached response if found, otherwise fetch from the network
-        return response || fetch(event.request).catch(() => {
-          // If the fetch fails (e.g., offline), serve a fallback page
-          if (event.request.mode === 'navigate') {
-            return caches.match('/budget-tracker/index.html');
-          }
-        });
-      })
-  );
-});
-
-// Activate the service worker and remove old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
           }
         })
       );
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Bypass for CSP error sources like inline JS/CSS or invalid integrity hashes
+  if (
+    url.href.includes("inline") ||
+    url.href.includes("csp") ||
+    url.href.includes("sha")
+  ) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      return cachedResponse || fetch(event.request).catch(() => {
+        // Fallback for 404s or CSP failure assets
+        if (event.request.destination === 'image') {
+          return caches.match('/budget-tracker/images/trash-can.png');
+        }
+        return new Response('Offline or CSP Blocked', {
+          status: 503,
+          statusText: 'Offline or Blocked by CSP'
+        });
+      });
     })
   );
 });
