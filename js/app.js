@@ -147,6 +147,7 @@ async function initApp() {
     
     // Event listener for open settings image click
     document.getElementById("open-settings").addEventListener("click", openSettings);
+
     document.getElementById("open-graph").addEventListener("click", openGraph);
 
     // Populate category dropdown
