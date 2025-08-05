@@ -142,10 +142,22 @@ async function initApp() {
     await populateCategoryDropdown();
 }
 
+// function bindEventListeners() {
+//     const bind = (id, event, fn) => {
+//         const el = document.getElementById(id);
+//         if (el) el.addEventListener(event, fn);
+//     };
 function bindEventListeners() {
+    console.log('Binding event listeners...');
+
     const bind = (id, event, fn) => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener(event, fn);
+        if (el) {
+            el.addEventListener(event, fn);
+            console.log(`Bound ${event} to #${id}`);
+        } else {
+            console.warn(`Element #${id} not found.`);
+        }
     };
 
     bind("open-settings", "click", openSettings);
