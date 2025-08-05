@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'budget-tracker-v2';
+const CACHE_NAME = 'budget-tracker-v3';
 const ASSETS_TO_CACHE = [
   '/budget-tracker/',
   '/budget-tracker/index.html',
@@ -15,6 +15,7 @@ const ASSETS_TO_CACHE = [
 
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force this SW to activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
       Promise.all(
@@ -31,6 +32,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
+  clients.claim(); // Take control of uncontrolled clients immediately
   event.waitUntil(
     caches.keys().then(cacheNames =>
       Promise.all(
@@ -52,3 +54,4 @@ self.addEventListener('fetch', event => {
   );
 
 });
+
