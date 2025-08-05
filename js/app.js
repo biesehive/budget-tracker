@@ -50,6 +50,7 @@ function openGraph() {
 
 // IndexedDB initialization
 let db;
+let dbReady = false;
 const request = indexedDB.open('budgetTrackerDB', 1);
 
 request.onupgradeneeded = function (event) {
@@ -71,10 +72,20 @@ request.onerror = function (event) {
 
 request.onsuccess = function (event) {
     db = event.target.result;
-    window.addEventListener("DOMContentLoaded", initApp);
+    dbReady = true;
+    console.log("DB ready");
+    // window.addEventListener("DOMContentLoaded", initApp);
 };
 
-// window.addEventListener("DOMContentLoaded", initApp);
+window.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM ready");
+    while (!dbReady) {
+        console.log("Waiting for DB...");
+        await new Promise(r => setTimeout(r, 50)); // Poll until db is ready
+    }
+    console.log("Init App...");
+    initApp();
+});
 
 function getAllFromStore(storeName) {
     return new Promise((resolve, reject) => {
