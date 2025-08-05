@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'budget-tracker-v3';
+const CACHE_NAME = 'budget-tracker-v3.1';
 const ASSETS_TO_CACHE = [
   '/budget-tracker/',
   '/budget-tracker/index.html',
@@ -47,11 +47,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/budget-tracker/index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
-    })
+    caches.match(event.request).then(cached => cached || fetch(event.request))
   );
-
 });
-
