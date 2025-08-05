@@ -71,8 +71,9 @@ request.onerror = function (event) {
 
 request.onsuccess = function (event) {
     db = event.target.result;
-    window.addEventListener("DOMContentLoaded", initApp);
 };
+
+window.addEventListener("DOMContentLoaded", initApp);
 
 function getAllFromStore(storeName) {
     return new Promise((resolve, reject) => {
