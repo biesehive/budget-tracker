@@ -44,9 +44,46 @@ function openSettings() {
     openModal('settings-modal');
 }
 
+// app.js (chart integration section only)
+
+import {
+  displayBarGraphCurrentMonth,
+  displayBarGraphPast3Months,
+  displayBarGraphRollingYear
+} from './chart.js';
+
+// Graph Modal Handling
 function openGraph() {
-    openModal('graph-modal');
+  const graphModal = document.getElementById('graph-modal');
+  if (graphModal) {
+    graphModal.style.display = 'block';
+    displayBarGraphCurrentMonth();
+    displayBarGraphPast3Months();
+    displayBarGraphRollingYear();
+  }
 }
+
+function closeGraph() {
+  const graphModal = document.getElementById('graph-modal');
+  if (graphModal) {
+    graphModal.style.display = 'none';
+  }
+}
+
+// Bind these to buttons in bindEventListeners
+function bindEventListeners() {
+  const bind = (id, event, fn) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, fn);
+  };
+
+  bind("open-graph", "click", openGraph);
+  bind("close-graph", "click", closeGraph);
+  // ... other bindings
+}
+
+// Export if used elsewhere
+export { openGraph, closeGraph };
 
 // IndexedDB initialization
 let db;
@@ -275,12 +312,32 @@ async function openTransactions() {
     `).join("");
 }
 
+// async function billIt() {
+//     const amtInput = document.getElementById("slider-amount");
+//     const catSelect = document.getElementById("category-dropdown");
+//     const val = parseFloat(amtInput.value);
+//     const category = catSelect.value;
+//     if (!val || val <= 0 || !category) return alert("Invalid input.");
+
+//     const date = new Date().toISOString().split("T")[0];
+//     await saveToStore("transactions", { date, amount: val, category });
+//     alert("Transaction saved.");
+// }
+
 async function billIt() {
     const amtInput = document.getElementById("slider-amount");
+    const slider = document.getElementById("slider");
     const catSelect = document.getElementById("category-dropdown");
-    const val = parseFloat(amtInput.value);
+
+    let val = parseFloat(amtInput.value.trim());
+    if (isNaN(val) && slider) {
+        val = parseFloat(slider.value);
+    }
+
     const category = catSelect.value;
-    if (!val || val <= 0 || !category) return alert("Invalid input.");
+    if (!val || val <= 0 || !category) {
+        return alert("Invalid input.");
+    }
 
     const date = new Date().toISOString().split("T")[0];
     await saveToStore("transactions", { date, amount: val, category });
