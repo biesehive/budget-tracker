@@ -18,6 +18,32 @@
 
     <!-- Add base to handle relative paths Production -->
     <base href="/budget-tracker/">
+    <script>
+        // One-time nuke SW + caches
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let reg of registrations) {
+                reg.unregister().then(() => {
+                console.warn('[SW] Unregistered');
+                });
+            }
+            });
+
+            caches.keys().then(keys => {
+            keys.forEach(key => {
+                if (key.startsWith('budget-tracker')) {
+                caches.delete(key).then(() => {
+                    console.warn('[SW] Deleted cache:', key);
+                });
+                }
+            });
+            });
+
+            setTimeout(() => {
+            window.location.reload(true); // force reload after purge
+            }, 1000);
+        }
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -64,7 +90,7 @@
         <div class="footer">
             <p id="days-left"></p>
             <p id="daily-spend"></p>
-            <p><small>v1.03.5</small></p>
+            <p><small>v1.03.6</small></p>
         </div>
 
         <!-- Settings and Bar Graph Icons -->

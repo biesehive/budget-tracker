@@ -16,7 +16,7 @@ if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
 }
 
 // Load version from manifest
-fetch('manifest.json')
+fetch('/budget-tracker/manifest.json')
     .then(response => response.json())
     .then(manifest => {
         const version = manifest.version || 'n/a';
