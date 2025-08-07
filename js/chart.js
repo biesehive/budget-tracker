@@ -4,13 +4,13 @@
 let currentMonthChart = null;
 let past3MonthsChart = null;
 let rollingYearChart = null;
-import { getAllTransactions } from './app.js';
+import { getAllRecords } from './app.js';
 
 async function displayBarGraphCurrentMonth() {
     const ctx = document.getElementById('barChartCurrentMonth')?.getContext('2d');
     if (!ctx) return;
 
-    const transactions = await getAllTransactions('transactions');
+    const transactions = await getAllRecords('transactions');
     const categoryTotals = {};
 
     const now = new Date();
@@ -58,7 +58,7 @@ async function displayBarGraphPast3Months() {
     const ctx = document.getElementById('barChartPast3Months')?.getContext('2d');
     if (!ctx) return;
 
-    const transactions = await getAllTransactions('transactions');
+    const transactions = await getAllRecords('transactions');
     const categoryTotals = {};
 
     const now = new Date();
@@ -105,7 +105,7 @@ async function displayBarGraphRollingYear() {
     const ctx = document.getElementById('barChartYTD')?.getContext('2d');
     if (!ctx) return;
 
-    const transactions = await getAllTransactions('transactions');
+    const transactions = await getAllRecords('transactions');
     const categoryTotals = {};
 
     const now = new Date();

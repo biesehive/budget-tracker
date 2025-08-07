@@ -131,7 +131,7 @@ async function openTransactions() {
     const list = document.getElementById("transaction-list");
     if (!list) return;
 
-    let txns = await getAllTransactions("transactions");
+    let txns = await getAllRecords("transactions");
     txns.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     list.innerHTML = "";
@@ -146,7 +146,7 @@ async function openTransactions() {
     });
 }
 
-function getAllTransactions(storeName) {
+function getAllRecords(storeName) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readonly');
         const objstore = transaction.objectStore(storeName);
@@ -161,7 +161,7 @@ function getAllTransactions(storeName) {
     });
 }
 
-function getTransaction(storeName, key) {
+function getRecord(storeName, key) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readonly');
         const objstore = transaction.objectStore(storeName);
@@ -176,7 +176,7 @@ function getTransaction(storeName, key) {
     });
 }
 
-function saveTransaction(storeName, data) {
+function saveRecord(storeName, data) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readwrite');
         const objstore = transaction.objectStore(storeName);
@@ -191,7 +191,7 @@ function saveTransaction(storeName, data) {
     });
 }
 
-function deleteTransaction(storeName, key) {
+function deleteRecord(storeName, key) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readwrite');
         const objstore = transaction.objectStore(storeName);
@@ -206,15 +206,15 @@ function deleteTransaction(storeName, key) {
     });
 }
 
-async function deleteTransactionById(id) {
+async function deleteRecordById(id) {
     if (!confirm("Are you sure you want to delete this transaction?")) return;
-    await deleteTransaction("transactions", id);
+    await deleteRecord("transactions", id);
     await openTransactions();
     await updateTotalExpenses();
 }
 
 async function editTransaction(id) {
-    const txn = await getTransaction("transactions", id);
+    const txn = await getRecord("transactions", id);
     if (!txn) return alert("Transaction not found");
 
     const modal = document.getElementById("edit-transaction-modal");
@@ -224,7 +224,7 @@ async function editTransaction(id) {
 
     const catDropdown = document.getElementById("edit-category-dropdown");
     catDropdown.innerHTML = "";
-    const categories = await getAllTransactions("categories");
+    const categories = await getAllRecords("categories");
     categories.forEach(({ name }) => {
         const option = document.createElement("option");
         option.value = name;
@@ -242,7 +242,7 @@ async function editTransaction(id) {
 
         txn.amount = newAmount;
         txn.category = newCategory;
-        await saveTransaction("transactions", txn);
+        await saveRecord("transactions", txn);
 
         modal.style.display = "none";
         await openTransactions();
@@ -260,37 +260,6 @@ async function initApp() {
     await updateTotalExpenses();
 }
 
-// function bindEventListeners() {
-//     console.log('Binding event listeners...');
-
-//     const bind = (id, event, fn) => {
-//         const el = document.getElementById(id);
-//         if (el) {
-//             el.addEventListener(event, fn);
-//             console.log(`Bound ${event} to #${id}`);
-//         } else {
-//             console.warn(`Element #${id} not found.`);
-//         }
-//     };
-
-    
-//     bind("open-settings", "click", openSettings);
-//     bind("open-graph", "click", openGraph);
-//     bind("close-graph", "click", () => closeModal("graph-modal"));
-//     bind("close-settings", "click", () => closeModal("settings-modal"));
-//     bind("close-transactions", "click", () => closeModal("transactions-modal"));
-//     bind("close-edit-transaction", "click", () => closeModal("edit-transaction-modal"));
-//     bind("bill-button", "click", billIt);
-//     bind("add-category", "click", addCategory);
-//     bind("delete-category", "click", deleteSelectedCategories);
-//     bind("save-settings-btn", "click", saveSettings);
-//     bind("open-transactions", "click", openTransactions);
-//     bind("total-expenses", "click", openGraph);
-//     bind("slider", "input", updateSliderAmount);
-    
-//     const sb = document.getElementById("starting-balance");
-//     if (sb) sb.ondblclick = editStartingBalance;
-// }
 function bindEventListeners() {
     const bind = (id, event, fn) => {
         const el = document.getElementById(id);
@@ -312,7 +281,7 @@ function bindEventListeners() {
     bind("delete-category", "click", deleteSelectedCategories);
     bind("save-settings-btn", "click", saveSettings);
     bind("open-transactions", "click", openTransactions);
-    bind("total-expenses", "click", openGraph);
+    bind("total-expenses", "click", openTransactions);
     bind("slider", "input", updateSliderAmount);
 
     // Transaction modal delete (trash can icon)
@@ -321,7 +290,7 @@ function bindEventListeners() {
         for (const checkbox of checkboxes) {
             const id = parseInt(checkbox.dataset.id);
             if (!isNaN(id)) {
-                await deleteTransactionById(id);
+                await deleteRecordById(id);
             }
         }
     });
@@ -336,7 +305,7 @@ async function populateCategoryList() {
     if (!listEl) return;
     listEl.innerHTML = "";
 
-    const categories = await getAllTransactions("categories");
+    const categories = await getAllRecords("categories");
     categories.forEach(({ name }) => {
         const li = document.createElement("li");
         li.innerHTML = `
@@ -352,7 +321,7 @@ async function populateCategoryDropdown() {
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
-    const categories = await getAllTransactions("categories");
+    const categories = await getAllRecords("categories");
     categories.forEach(({ name }) => {
         const option = document.createElement("option");
         option.value = name;
@@ -366,7 +335,7 @@ async function addCategory() {
     if (!input || !input.value.trim()) return;
 
     const name = input.value.trim();
-    await saveTransaction("categories", { name });
+    await saveRecord("categories", { name });
     await populateCategoryList();
     await populateCategoryDropdown();
     input.value = "";
@@ -375,7 +344,7 @@ async function addCategory() {
 async function deleteSelectedCategories() {
     const checkboxes = document.querySelectorAll(".category-checkbox:checked");
     for (let checkbox of checkboxes) {
-        await deleteTransaction("categories", checkbox.dataset.name);
+        await deleteRecord("categories", checkbox.dataset.name);
     }
     await populateCategoryList();
     await populateCategoryDropdown();
@@ -404,7 +373,7 @@ async function billIt() {
     }
 
     const date = new Date().toISOString().split("T")[0];
-    await saveTransaction("transactions", { date, amount: val, category });
+    await saveRecord("transactions", { date, amount: val, category });
     alert("Transaction saved.");
     // Reset slider and input to default
     if (slider) slider.value = (slider.max - slider.min) / 2;
@@ -415,7 +384,7 @@ async function billIt() {
 
 async function loadStartingBalance() {
     const sb = document.getElementById("starting-balance");
-    const entry = await getTransaction("budgetData", "startingBalance");
+    const entry = await getRecord("budgetData", "startingBalance");
     if (sb && entry) {
         sb.innerText = `$ ${entry.value.toFixed(2)}`;
     }
@@ -432,7 +401,7 @@ function editStartingBalance() {
     input.onblur = async () => {
         const val = parseFloat(input.value);
         if (isNaN(val)) return;
-        await saveTransaction("budgetData", { key: "startingBalance", value: val });
+        await saveRecord("budgetData", { key: "startingBalance", value: val });
         sb.innerText = `$ ${val.toFixed(2)}`;
     };
 
@@ -444,7 +413,7 @@ function editStartingBalance() {
 async function updateTotalExpenses() {
     const totalEl = document.getElementById("total-expenses");
     if (!totalEl) return;
-    const transactions = await getAllTransactions("transactions");
+    const transactions = await getAllRecords("transactions");
     const total = transactions.reduce((sum, txn) => sum + txn.amount, 0);
     totalEl.textContent = `$ ${total.toFixed(2)}`;
 }
@@ -455,4 +424,4 @@ function updateSliderAmount() {
     if (slider && amount) amount.value = slider.value;
 }
 
-export { getAllTransactions };
+export { getAllRecords };
