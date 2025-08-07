@@ -8,7 +8,7 @@
 
     <title>Budget Tracker</title>
     <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css?v=1.0.3.6">
+    <link rel="stylesheet" href="css/styles.css?v=1.0.3.7">
 
     <!-- Manifest Production -->
     <link rel="manifest" href="/budget-tracker/manifest.json"> 
@@ -18,32 +18,7 @@
 
     <!-- Add base to handle relative paths Production -->
     <base href="/budget-tracker/">
-    <script>
-        // One-time nuke SW + caches
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let reg of registrations) {
-                reg.unregister().then(() => {
-                console.warn('[SW] Unregistered');
-                });
-            }
-            });
-
-            caches.keys().then(keys => {
-            keys.forEach(key => {
-                if (key.startsWith('budget-tracker')) {
-                caches.delete(key).then(() => {
-                    console.warn('[SW] Deleted cache:', key);
-                });
-                }
-            });
-            });
-
-            setTimeout(() => {
-            window.location.reload(true); // force reload after purge
-            }, 1000);
-        }
-    </script>
+    
 </head>
 <body>
     <div class="app-container">
@@ -182,8 +157,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js?v=1.0.3.6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js?v=1.0.3.7" crossorigin="anonymous"></script>
     <!-- <script src="js/app.js"></script> -->
-    <script src="js/app.js?v=1.0.3.6"></script>
+    <!-- <script src="js/app.js?v=1.0.3.6"></script> -->
+    <script type="module" src="js/app.js?v=1.0.3.7"></script>
+
 </body>
 </html>
