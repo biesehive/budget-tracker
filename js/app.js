@@ -70,18 +70,6 @@ function closeGraph() {
   }
 }
 
-// Bind these to buttons in bindEventListeners
-function bindEventListeners() {
-  const bind = (id, event, fn) => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener(event, fn);
-  };
-
-  bind("open-graph", "click", openGraph);
-  bind("close-graph", "click", closeGraph);
-  // ... other bindings
-}
-
 // Export if used elsewhere
 export { openGraph, closeGraph };
 
@@ -203,11 +191,6 @@ async function initApp() {
     await populateCategoryDropdown();
 }
 
-// function bindEventListeners() {
-//     const bind = (id, event, fn) => {
-//         const el = document.getElementById(id);
-//         if (el) el.addEventListener(event, fn);
-//     };
 function bindEventListeners() {
     console.log('Binding event listeners...');
 
