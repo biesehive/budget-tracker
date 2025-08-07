@@ -124,11 +124,11 @@ function tryInitApp() {
     }
 }
 
-function getAllFromStore(storeName) {
+function getAllTransactions(storeName) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readonly');
-        const store = transaction.objectStore(storeName);
-        const request = store.getAll();
+        const objstore = transaction.objectStore(storeName);
+        const request = objstore.getAll();
 
         request.onsuccess = function () {
             resolve(request.result);
@@ -139,11 +139,11 @@ function getAllFromStore(storeName) {
     });
 }
 
-function getFromStore(storeName, key) {
+function getTransaction(storeName, key) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readonly');
-        const store = transaction.objectStore(storeName);
-        const request = store.get(key);
+        const objstore = transaction.objectStore(storeName);
+        const request = objstore.get(key);
 
         request.onsuccess = function () {
             resolve(request.result);
@@ -154,11 +154,11 @@ function getFromStore(storeName, key) {
     });
 }
 
-function saveToStore(storeName, data) {
+function saveTransaction(storeName, data) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const request = store.put(data);
+        const objstore = transaction.objectStore(storeName);
+        const request = objstore.put(data);
 
         request.onsuccess = function () {
             resolve();
@@ -169,11 +169,11 @@ function saveToStore(storeName, data) {
     });
 }
 
-function deleteFromStore(storeName, key) {
+function deleteTransaction(storeName, key) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const request = store.delete(key);
+        const objstore = transaction.objectStore(storeName);
+        const request = objstore.delete(key);
 
         request.onsuccess = function () {
             resolve();
@@ -227,7 +227,7 @@ async function populateCategoryList() {
     if (!listEl) return;
     listEl.innerHTML = "";
 
-    const categories = await getAllFromStore("categories");
+    const categories = await getAllTransactions("categories");
     categories.forEach(({ name }) => {
         const li = document.createElement("li");
         li.innerHTML = `
@@ -243,7 +243,7 @@ async function populateCategoryDropdown() {
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
-    const categories = await getAllFromStore("categories");
+    const categories = await getAllTransactions("categories");
     categories.forEach(({ name }) => {
         const option = document.createElement("option");
         option.value = name;
@@ -257,7 +257,7 @@ async function addCategory() {
     if (!input || !input.value.trim()) return;
 
     const name = input.value.trim();
-    await saveToStore("categories", { name });
+    await saveTransaction("categories", { name });
     await populateCategoryList();
     await populateCategoryDropdown();
     input.value = "";
@@ -266,7 +266,7 @@ async function addCategory() {
 async function deleteSelectedCategories() {
     const checkboxes = document.querySelectorAll(".category-checkbox:checked");
     for (let checkbox of checkboxes) {
-        await deleteFromStore("categories", checkbox.dataset.name);
+        await deleteTransaction("categories", checkbox.dataset.name);
     }
     await populateCategoryList();
     await populateCategoryDropdown();
@@ -286,7 +286,7 @@ async function openTransactions() {
     const list = document.getElementById("transaction-list");
     if (!list) return;
 
-    const txns = await getAllFromStore("transactions");
+    const txns = await getAllTransactions("transactions");
     list.innerHTML = txns.map(txn => `
         <li>
             <input type="checkbox">
@@ -294,18 +294,6 @@ async function openTransactions() {
         </li>
     `).join("");
 }
-
-// async function billIt() {
-//     const amtInput = document.getElementById("slider-amount");
-//     const catSelect = document.getElementById("category-dropdown");
-//     const val = parseFloat(amtInput.value);
-//     const category = catSelect.value;
-//     if (!val || val <= 0 || !category) return alert("Invalid input.");
-
-//     const date = new Date().toISOString().split("T")[0];
-//     await saveToStore("transactions", { date, amount: val, category });
-//     alert("Transaction saved.");
-// }
 
 async function billIt() {
     const amtInput = document.getElementById("slider-amount");
@@ -323,7 +311,7 @@ async function billIt() {
     }
 
     const date = new Date().toISOString().split("T")[0];
-    await saveToStore("transactions", { date, amount: val, category });
+    await saveTransaction("transactions", { date, amount: val, category });
     alert("Transaction saved.");
 }
 
@@ -338,7 +326,7 @@ function editStartingBalance() {
     input.onblur = async () => {
         const val = parseFloat(input.value);
         if (isNaN(val)) return;
-        await saveToStore("budgetData", { key: "startingBalance", value: val });
+        await saveTransaction("budgetData", { key: "startingBalance", value: val });
         sb.innerText = `$ ${val.toFixed(2)}`;
     };
 
