@@ -102,7 +102,6 @@ request.onsuccess = function (event) {
     dbReady = true;
     console.log("DB ready");
     if (domReady) tryInitApp();
-    // window.addEventListener("DOMContentLoaded", initApp);
 };
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -189,6 +188,8 @@ async function initApp() {
     bindEventListeners();
     await populateCategoryList();
     await populateCategoryDropdown();
+    await loadStartingBalance();
+    updateSliderAmount();
 }
 
 function bindEventListeners() {
@@ -305,14 +306,26 @@ async function billIt() {
         val = parseFloat(slider.value);
     }
 
-    const category = catSelect.value;
-    if (!val || val <= 0 || !category) {
+    const category = catSelect.value.trim();
+    // if (!val || val <= 0 || !category) {
+    if (!category || isNaN(val) || val <= 0) {
         return alert("Invalid input.");
     }
 
     const date = new Date().toISOString().split("T")[0];
     await saveTransaction("transactions", { date, amount: val, category });
     alert("Transaction saved.");
+    // ??
+    amtInput.value = val.toFixed(2);
+    if (slider) slider.value = val;
+}
+
+async function loadStartingBalance() {
+    const sb = document.getElementById("starting-balance");
+    const entry = await getTransaction("budgetData", "startingBalance");
+    if (sb && entry) {
+        sb.innerText = `$ ${entry.value.toFixed(2)}`;
+    }
 }
 
 function editStartingBalance() {
