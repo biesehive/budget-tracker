@@ -494,7 +494,6 @@ function openSettings() {
     openModal('settings-modal');
 }
 
-// app.js (chart integration section only)
 import {
   displayBarGraphCurrentMonth,
   displayBarGraphPast3Months,
@@ -573,6 +572,7 @@ let isProcessingTransaction = false;
 async function billIt() {
     const billButton = document.getElementById("bill-button");
     const amountField = document.getElementById("slider-amount");
+    const slider = document.getElementById("slider");
 
     if (isProcessingTransaction) return;
 
@@ -581,7 +581,7 @@ async function billIt() {
     billButton.disabled = true;
     amountField.disabled = true;
 
-    if (!manualAmount || isNaN(manualAmount) || parseInt(manualAmount) <= 0) {
+    if (!manualAmount || isNaN(manualAmount) || parseFloat(manualAmount) <= 0) {
         billButton.disabled = false;
         amountField.disabled = false;
         return;
@@ -589,7 +589,7 @@ async function billIt() {
 
     isProcessingTransaction = true;
 
-    let amountToBill = parseInt(manualAmount);
+    let amountToBill = parseFloat(manualAmount);
     let selectedCategory = document.getElementById("category-dropdown").value;
     let today = new Date();
     let formattedDate = today.toISOString().split("T")[0];
@@ -604,11 +604,12 @@ async function billIt() {
         let transactionsData = await getAllRecords("transactions");
         let totalExpenses = transactionsData.reduce((sum, transaction) => sum + transaction.amount, 0);
 
-        document.getElementById("total-expenses").innerText = `$ ${totalExpenses.toFixed(2)}`;
+        const totalEl = document.getElementById("total-expenses");
+        if (totalEl) totalEl.innerText = `$ ${totalExpenses.toFixed(2)}`;
+
         await updateRemainingBalance();
 
-        const slider = document.getElementById("slider");
-        slider.value = (parseInt(slider.min) + parseInt(slider.max)) / 2;
+        if (slider) slider.value = (parseInt(slider.min) + parseInt(slider.max)) / 2;
         amountField.value = "";
         document.getElementById("category-dropdown").value = "Other";
 
@@ -668,9 +669,33 @@ async function loadStartingBalance() {
     }
 }
 
+function updateSliderAmount() {
+    const slider = document.getElementById("slider");
+    const amountField = document.getElementById("slider-amount");
+    if (slider && amountField) {
+        amountField.value = slider.value;
+    }
+}
+
+function bindEventListeners() {
+    const bind = (id, event, fn) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener(event, fn);
+        } else {
+            console.warn(`Element #${id} not found.`);
+        }
+    };
+
+    bind("bill-button", "click", billIt);
+    bind("slider", "input", updateSliderAmount);
+}
+
 async function initApp() {
+    bindEventListeners();
     await loadStartingBalance();
     await updateRemainingBalance();
+    updateSliderAmount();
 }
 
 export { getAllRecords };
