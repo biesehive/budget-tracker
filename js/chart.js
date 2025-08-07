@@ -4,6 +4,7 @@
 let currentMonthChart = null;
 let past3MonthsChart = null;
 let rollingYearChart = null;
+import { getAllTransactions } from './app.js';
 
 async function displayBarGraphCurrentMonth() {
     const ctx = document.getElementById('barChartCurrentMonth')?.getContext('2d');

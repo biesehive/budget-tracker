@@ -183,6 +183,73 @@ function deleteTransaction(storeName, key) {
     });
 }
 
+async function openTransactions() {
+    const modal = document.getElementById("transactions-modal");
+    if (!modal) return;
+    modal.style.display = "block";
+
+    const list = document.getElementById("transaction-list");
+    if (!list) return;
+
+    let txns = await getAllTransactions("transactions");
+    txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    list.innerHTML = "";
+    txns.forEach((txn, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <input type="checkbox" class="transaction-checkbox" data-index="${index}">
+            ${txn.date} - $${txn.amount.toFixed(2)} - ${txn.category}
+        `;
+        li.ondblclick = () => editTransaction(txn.id);
+        list.appendChild(li);
+    });
+}
+
+async function deleteTransactionById(id) {
+    if (!confirm("Are you sure you want to delete this transaction?")) return;
+    await deleteTransaction("transactions", id);
+    await openTransactions();
+    await updateTotalExpenses();
+}
+
+async function editTransaction(id) {
+    const txn = await getTransaction("transactions", id);
+    if (!txn) return alert("Transaction not found");
+
+    const modal = document.getElementById("edit-transaction-modal");
+    if (!modal) return;
+
+    document.getElementById("edit-amount").value = txn.amount;
+
+    const catDropdown = document.getElementById("edit-category-dropdown");
+    catDropdown.innerHTML = "";
+    const categories = await getAllTransactions("categories");
+    categories.forEach(({ name }) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.text = name;
+        if (name === txn.category) option.selected = true;
+        catDropdown.appendChild(option);
+    });
+
+    modal.style.display = "block";
+
+    document.getElementById("save-edit-btn").onclick = async () => {
+        const newAmount = parseFloat(document.getElementById("edit-amount").value);
+        const newCategory = document.getElementById("edit-category-dropdown").value;
+        if (isNaN(newAmount) || newAmount <= 0 || !newCategory) return alert("Invalid input");
+
+        txn.amount = newAmount;
+        txn.category = newCategory;
+        await saveTransaction("transactions", txn);
+
+        modal.style.display = "none";
+        await openTransactions();
+        await updateTotalExpenses();
+    };
+}
+
 // App initialization
 async function initApp() {
     bindEventListeners();
@@ -193,14 +260,42 @@ async function initApp() {
     await updateTotalExpenses();
 }
 
-function bindEventListeners() {
-    console.log('Binding event listeners...');
+// function bindEventListeners() {
+//     console.log('Binding event listeners...');
 
+//     const bind = (id, event, fn) => {
+//         const el = document.getElementById(id);
+//         if (el) {
+//             el.addEventListener(event, fn);
+//             console.log(`Bound ${event} to #${id}`);
+//         } else {
+//             console.warn(`Element #${id} not found.`);
+//         }
+//     };
+
+    
+//     bind("open-settings", "click", openSettings);
+//     bind("open-graph", "click", openGraph);
+//     bind("close-graph", "click", () => closeModal("graph-modal"));
+//     bind("close-settings", "click", () => closeModal("settings-modal"));
+//     bind("close-transactions", "click", () => closeModal("transactions-modal"));
+//     bind("close-edit-transaction", "click", () => closeModal("edit-transaction-modal"));
+//     bind("bill-button", "click", billIt);
+//     bind("add-category", "click", addCategory);
+//     bind("delete-category", "click", deleteSelectedCategories);
+//     bind("save-settings-btn", "click", saveSettings);
+//     bind("open-transactions", "click", openTransactions);
+//     bind("total-expenses", "click", openGraph);
+//     bind("slider", "input", updateSliderAmount);
+    
+//     const sb = document.getElementById("starting-balance");
+//     if (sb) sb.ondblclick = editStartingBalance;
+// }
+function bindEventListeners() {
     const bind = (id, event, fn) => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener(event, fn);
-            console.log(`Bound ${event} to #${id}`);
         } else {
             console.warn(`Element #${id} not found.`);
         }
@@ -219,7 +314,19 @@ function bindEventListeners() {
     bind("open-transactions", "click", openTransactions);
     bind("total-expenses", "click", openGraph);
     bind("slider", "input", updateSliderAmount);
-    
+
+    // Transaction modal delete (trash can icon)
+    bind("delete-transaction", "click", async () => {
+        const checkboxes = document.querySelectorAll(".transaction-checkbox:checked");
+        for (const checkbox of checkboxes) {
+            const id = parseInt(checkbox.dataset.id);
+            if (!isNaN(id)) {
+                await deleteTransactionById(id);
+            }
+        }
+    });
+
+    // 🖱️ Double-click starting balance to edit
     const sb = document.getElementById("starting-balance");
     if (sb) sb.ondblclick = editStartingBalance;
 }
@@ -280,6 +387,22 @@ function saveSettings() {
     alert("Settings saved.");
 }
 
+// async function openTransactions() {
+//     const modal = document.getElementById("transactions-modal");
+//     if (!modal) return;
+//     modal.style.display = "block";
+
+//     const list = document.getElementById("transaction-list");
+//     if (!list) return;
+
+//     const txns = await getAllTransactions("transactions");
+//     list.innerHTML = txns.map(txn => `
+//         <li>
+//             <input type="checkbox">
+//             ${txn.date} - $${txn.amount} - ${txn.category}
+//         </li>
+//     `).join("");
+// }
 async function openTransactions() {
     const modal = document.getElementById("transactions-modal");
     if (!modal) return;
@@ -288,13 +411,19 @@ async function openTransactions() {
     const list = document.getElementById("transaction-list");
     if (!list) return;
 
-    const txns = await getAllTransactions("transactions");
-    list.innerHTML = txns.map(txn => `
-        <li>
-            <input type="checkbox">
-            ${txn.date} - $${txn.amount} - ${txn.category}
-        </li>
-    `).join("");
+    let txns = await getAllTransactions("transactions");
+    txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    list.innerHTML = "";
+    txns.forEach((txn) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <input type="checkbox" class="transaction-checkbox" data-id="${txn.id}">
+            ${txn.date} - $${txn.amount.toFixed(2)} - ${txn.category}
+        `;
+        li.ondblclick = () => editTransaction(txn.id);
+        list.appendChild(li);
+    });
 }
 
 async function billIt() {
@@ -364,3 +493,5 @@ function updateSliderAmount() {
     const amount = document.getElementById("slider-amount");
     if (slider && amount) amount.value = slider.value;
 }
+
+export { getAllTransactions };
