@@ -190,6 +190,7 @@ async function initApp() {
     await populateCategoryDropdown();
     await loadStartingBalance();
     updateSliderAmount();
+    await updateTotalExpenses();
 }
 
 function bindEventListeners() {
@@ -218,7 +219,7 @@ function bindEventListeners() {
     bind("open-transactions", "click", openTransactions);
     bind("total-expenses", "click", openGraph);
     bind("slider", "input", updateSliderAmount);
-
+    
     const sb = document.getElementById("starting-balance");
     if (sb) sb.ondblclick = editStartingBalance;
 }
@@ -315,9 +316,11 @@ async function billIt() {
     const date = new Date().toISOString().split("T")[0];
     await saveTransaction("transactions", { date, amount: val, category });
     alert("Transaction saved.");
-    // ??
-    amtInput.value = val.toFixed(2);
-    if (slider) slider.value = val;
+    // Reset slider and input to default
+    if (slider) slider.value = (slider.max - slider.min) / 2;
+    if (amtInput) amtInput.value = "";
+    updateSliderAmount();
+    await updateTotalExpenses();
 }
 
 async function loadStartingBalance() {
@@ -346,6 +349,14 @@ function editStartingBalance() {
     sb.innerHTML = "";
     sb.appendChild(input);
     input.focus();
+}
+
+async function updateTotalExpenses() {
+    const totalEl = document.getElementById("total-expenses");
+    if (!totalEl) return;
+    const transactions = await getAllTransactions("transactions");
+    const total = transactions.reduce((sum, txn) => sum + txn.amount, 0);
+    totalEl.textContent = `$ ${total.toFixed(2)}`;
 }
 
 function updateSliderAmount() {
