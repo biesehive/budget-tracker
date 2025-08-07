@@ -123,6 +123,29 @@ function tryInitApp() {
     }
 }
 
+async function openTransactions() {
+    const modal = document.getElementById("transactions-modal");
+    if (!modal) return;
+    modal.style.display = "block";
+
+    const list = document.getElementById("transaction-list");
+    if (!list) return;
+
+    let txns = await getAllTransactions("transactions");
+    txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    list.innerHTML = "";
+    txns.forEach((txn) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <input type="checkbox" class="transaction-checkbox" data-id="${txn.id}">
+            ${txn.date} - $${txn.amount.toFixed(2)} - ${txn.category}
+        `;
+        li.ondblclick = () => editTransaction(txn.id);
+        list.appendChild(li);
+    });
+}
+
 function getAllTransactions(storeName) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([storeName], 'readonly');
@@ -180,29 +203,6 @@ function deleteTransaction(storeName, key) {
         request.onerror = function () {
             reject(request.error);
         };
-    });
-}
-
-async function openTransactions() {
-    const modal = document.getElementById("transactions-modal");
-    if (!modal) return;
-    modal.style.display = "block";
-
-    const list = document.getElementById("transaction-list");
-    if (!list) return;
-
-    let txns = await getAllTransactions("transactions");
-    txns.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    list.innerHTML = "";
-    txns.forEach((txn, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <input type="checkbox" class="transaction-checkbox" data-index="${index}">
-            ${txn.date} - $${txn.amount.toFixed(2)} - ${txn.category}
-        `;
-        li.ondblclick = () => editTransaction(txn.id);
-        list.appendChild(li);
     });
 }
 
@@ -385,45 +385,6 @@ function saveSettings() {
     const pf = document.getElementById("pay-frequency-dropdown").value;
     localStorage.setItem("payFrequency", pf);
     alert("Settings saved.");
-}
-
-// async function openTransactions() {
-//     const modal = document.getElementById("transactions-modal");
-//     if (!modal) return;
-//     modal.style.display = "block";
-
-//     const list = document.getElementById("transaction-list");
-//     if (!list) return;
-
-//     const txns = await getAllTransactions("transactions");
-//     list.innerHTML = txns.map(txn => `
-//         <li>
-//             <input type="checkbox">
-//             ${txn.date} - $${txn.amount} - ${txn.category}
-//         </li>
-//     `).join("");
-// }
-async function openTransactions() {
-    const modal = document.getElementById("transactions-modal");
-    if (!modal) return;
-    modal.style.display = "block";
-
-    const list = document.getElementById("transaction-list");
-    if (!list) return;
-
-    let txns = await getAllTransactions("transactions");
-    txns.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    list.innerHTML = "";
-    txns.forEach((txn) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <input type="checkbox" class="transaction-checkbox" data-id="${txn.id}">
-            ${txn.date} - $${txn.amount.toFixed(2)} - ${txn.category}
-        `;
-        li.ondblclick = () => editTransaction(txn.id);
-        list.appendChild(li);
-    });
 }
 
 async function billIt() {
