@@ -312,25 +312,25 @@ async function populateTransactionList() {
     li.innerHTML = `
       <input type=\"checkbox\" class=\"transaction-checkbox\" data-id=\"${txn.id}\">
       ${formatDateForDisplay(txn.date)} - $${Number(txn.amount).toFixed(2)} - ${txn.category}
-      <button type=\"button\" class=\"delete-transaction\" title=\"Delete\" data-id=\"${txn.id}\">🗑</button>
+    //   <button type=\"button\" class=\"delete-transaction\" title=\"Delete\" data-id=\"${txn.id}\">🗑</button>
     `;
     li.ondblclick = () => editTransaction(txn.id);
     list.appendChild(li);
   });
-  document.querySelectorAll(".delete-transaction").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const id = parseInt(e.currentTarget.getAttribute("data-id"), 10);
-      if (Number.isNaN(id)) return;
-      try {
-        await deleteTransactionById(id);
-        await updateTotalExpenses();
-        await populateTransactionList();
-      } catch (err) {
-        alert("Failed to delete transaction. See console for details.");
-        console.error(err);
-      }
-    });
-  });
+//   document.querySelectorAll(".delete-transaction").forEach((btn) => {
+//     btn.addEventListener("click", async (e) => {
+//       const id = parseInt(e.currentTarget.getAttribute("data-id"), 10);
+//       if (Number.isNaN(id)) return;
+//       try {
+//         await deleteTransactionById(id);
+//         await updateTotalExpenses();
+//         await populateTransactionList();
+//       } catch (err) {
+//         alert("Failed to delete transaction. See console for details.");
+//         console.error(err);
+//       }
+//     });
+//   });
 }
 
 async function editTransaction(transactionId) {
