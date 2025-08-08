@@ -310,11 +310,15 @@ async function populateTransactionList() {
   txns.forEach((txn) => {
     const li = document.createElement("li");
     li.innerHTML = `
-      <input type=\"checkbox\" class=\"transaction-checkbox\" data-id=\"${txn.id}\">
-      ${formatDateForDisplay(txn.date)} - $${Number(txn.amount).toFixed(2)} - ${txn.category}
-    ;
-    li.ondblclick = () => editTransaction(txn.id);
-    list.appendChild(li);
+    <label class="transaction-item">
+        <input type="checkbox" class="transaction-checkbox" data-id="${String(txn.id)}">
+        <span class="transaction-date">${formatDateForDisplay(txn.date)}</span>
+        <span class="transaction-amount">$${Number(txn.amount).toFixed(2)}</span>
+        <span class="transaction-category">${txn.category}</span>
+    </label>
+    `;
+        li.ondblclick = () => editTransaction(txn.id);
+        list.appendChild(li);
   });
 //   document.querySelectorAll(".delete-transaction").forEach((btn) => {
 //     btn.addEventListener("click", async (e) => {
