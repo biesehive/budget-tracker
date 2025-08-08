@@ -312,8 +312,7 @@ async function populateTransactionList() {
     li.innerHTML = `
       <input type=\"checkbox\" class=\"transaction-checkbox\" data-id=\"${txn.id}\">
       ${formatDateForDisplay(txn.date)} - $${Number(txn.amount).toFixed(2)} - ${txn.category}
-    //   <button type=\"button\" class=\"delete-transaction\" title=\"Delete\" data-id=\"${txn.id}\">🗑</button>
-    `;
+    ;
     li.ondblclick = () => editTransaction(txn.id);
     list.appendChild(li);
   });
