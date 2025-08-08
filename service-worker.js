@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'budget-tracker-v1.0.5.1';
+const CACHE_NAME = 'budget-tracker-v1.0.5.2';
 const ASSETS_TO_CACHE = [
   '/budget-tracker/',
   '/budget-tracker/index.html',

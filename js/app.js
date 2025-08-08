@@ -109,6 +109,10 @@ function deleteTransactionById(id) {
 }
 
 // ---------------- Utility ----------------
+function qs(id) {
+  return document.getElementById(id);
+}
+
 function formatDateForStorage(date) { return date.toISOString().split("T")[0]; }
 
 function formatDateForDisplay(dateStr) {
@@ -132,7 +136,15 @@ function parseDate(dateString) {
   return new Date();
 }
 
-function closeModal(modalId) { const el = document.getElementById(modalId); if (el) el.style.display = "none"; }
+function closeModal(modalId) {
+  const el = qs(modalId);
+  if (el) el.style.display = "none";
+}
+
+function openModal(modalId) {
+  const el = qs(modalId);
+  if (el) el.style.display = "block";
+}
 
 function updateSliderAmount() {
   const slider = document.getElementById("slider");
@@ -294,46 +306,68 @@ async function deleteSelectedCategories() {
 async function getAllTransactions() { return getAllRecords("transactions"); }
 
 async function openTransactions() {
-  const modal = document.getElementById("transactions-modal");
-  if (!modal) return;
-  modal.style.display = "block";
+  openModal("transactions-modal");
   await populateTransactionList();
 }
 
 async function populateTransactionList() {
-  const list = document.getElementById("transaction-list");
+  const list = qs("transaction-list");
   if (!list) return;
   let txns = await getAllTransactions();
   txns.sort((a, b) => new Date(b.date) - new Date(a.date));
   list.innerHTML = "";
-  if (!txns.length) { list.innerHTML = "<li>No transactions available</li>"; return; }
+  if (!txns.length) {
+    list.innerHTML = "<li>No transactions available</li>";
+    updateMainTrashDisabledState();
+    return;
+  }
+
   txns.forEach((txn) => {
     const li = document.createElement("li");
     li.innerHTML = `
-    <label class="transaction-item">
+      <label class="transaction-item">
         <input type="checkbox" class="transaction-checkbox" data-id="${String(txn.id)}">
         <span class="transaction-date">${formatDateForDisplay(txn.date)}</span>
         <span class="transaction-amount">$${Number(txn.amount).toFixed(2)}</span>
         <span class="transaction-category">${txn.category}</span>
-    </label>
+      </label>
     `;
-        li.ondblclick = () => editTransaction(txn.id);
-        list.appendChild(li);
+    li.ondblclick = () => editTransaction(Number(txn.id));
+    list.appendChild(li);
   });
-//   document.querySelectorAll(".delete-transaction").forEach((btn) => {
-//     btn.addEventListener("click", async (e) => {
-//       const id = parseInt(e.currentTarget.getAttribute("data-id"), 10);
-//       if (Number.isNaN(id)) return;
-//       try {
-//         await deleteTransactionById(id);
-//         await updateTotalExpenses();
-//         await populateTransactionList();
-//       } catch (err) {
-//         alert("Failed to delete transaction. See console for details.");
-//         console.error(err);
-//       }
-//     });
-//   });
+
+  updateMainTrashDisabledState();
+}
+
+function getCheckedTransactionIds() {
+  return Array.from(document.querySelectorAll('.transaction-checkbox:checked'))
+    .map(cb => parseInt(cb.dataset.id, 10))
+    .filter(id => !Number.isNaN(id));
+}
+
+async function onDeleteSelectedClick() {
+  const ids = getCheckedTransactionIds();
+  if (ids.length === 0) {
+    alert('Please select transactions to delete.');
+    return;
+  }
+  if (!confirm(`Delete ${ids.length} selected transaction(s)?`)) return;
+  try {
+    for (const id of ids) {
+      await deleteTransactionById(id);
+    }
+    await populateTransactionList();
+    await updateTotalExpenses();
+  } catch (err) {
+    alert('Failed to delete selected transactions. See console for details.');
+    console.error(err);
+  }
+}
+
+function updateMainTrashDisabledState() {
+  const mainTrashBtn = qs('main-trash-can') || qs('transactions-delete-btn');
+  if (!mainTrashBtn) return;
+  mainTrashBtn.disabled = document.querySelectorAll('.transaction-checkbox:checked').length === 0;
 }
 
 async function editTransaction(transactionId) {
@@ -374,13 +408,11 @@ async function saveTransactionEdits(transactionId) {
 }
 
 async function deleteSelectedTransactions() {
-  const checked = document.querySelectorAll(".transaction-checkbox:checked");
-  if (!checked.length) { alert("Please select transactions to delete."); return; }
+  const ids = getCheckedTransactionIds();
+  if (!ids.length) { alert("Please select transactions to delete."); return; }
+  if (!confirm(`Delete ${ids.length} selected transaction(s)?`)) return;
   try {
-    for (const cb of checked) {
-      const id = parseInt(cb.getAttribute("data-id"), 10);
-      if (!Number.isNaN(id)) await deleteTransactionById(id);
-    }
+    for (const id of ids) await deleteTransactionById(id);
     await populateTransactionList();
     await updateTotalExpenses();
   } catch (err) {
