@@ -1,26 +1,31 @@
 {
-    "name": "Budget Tracker PWA",
-    "short_name": "BudgetTracker",
-    "start_url": "/budget-tracker/index.html",
-    "scope": "/budget-tracker/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#ffffff",
-    "description": "Track your budget, expenses, and balance",
-    "prefer_related_applications": false,
-    "version": "1.0.5.2",
-    "orientation": "portrait",
-    "lang": "en",
-    "icons": [
-        {
-            "src": "/budget-tracker/images/icon.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/budget-tracker/images/icon.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "Budget Tracker PWA",
+  "short_name": "BudgetTracker",
+  "id": "/budget-tracker/",
+  "start_url": "/budget-tracker/index.html",
+  "scope": "/budget-tracker/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "Track your budget, expenses, and balance",
+  "prefer_related_applications": false,
+  "version": "1.0.5.3",
+  "orientation": "portrait",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/budget-tracker/images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/budget-tracker/images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

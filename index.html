@@ -1,164 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Enforced CSP for security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self'; connect-src 'self';" />
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0" />
 
-    <title>Budget Tracker</title>
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css?v=1.0.5.2">
+  <!-- Strict CSP (no inline styles/handlers, self-hosted scripts) -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self';
+      style-src 'self';
+      img-src 'self' data:;
+      connect-src 'self';
+      worker-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      frame-ancestors 'none';
+      form-action 'self';
+      upgrade-insecure-requests
+    " />
 
-    <!-- Manifest Production -->
-    <link rel="manifest" href="/budget-tracker/manifest.json"> 
+  <title>Budget Tracker</title>
 
-    <!-- No JavaScript fallback -->
-    <noscript><strong>This app requires JavaScript to function properly. Please enable JavaScript in your browser.</strong></noscript>
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css?v=1.0.5.4" />
 
-    <!-- Add base to handle relative paths Production -->
-    <base href="/budget-tracker/">
-    
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/budget-tracker/manifest.json" />
+
+  <!-- No JavaScript fallback -->
+  <noscript>
+    <strong>This app requires JavaScript to function properly. Please enable JavaScript in your browser.</strong>
+  </noscript>
+
+  <!-- Base for production relative paths -->
+  <base href="/budget-tracker/" />
 </head>
 <body>
-    <div class="app-container">
-        <!-- Starting Balance Section -->
-        <div class="header">
-            <h3>Starting Bal.</h3>
-            <!-- Double-click to edit starting balance -->
-            <div class="balance" id="starting-balance">$ 5500</div>
-        </div>
-
-        <!-- Category, Slider and Amount container -->
-        <div class="category-amount-container">
-            <select id="category-dropdown">
-                <option value="Other">Other</option>
-                <!-- Dynamically populated from local storage -->
-            </select>
-            <input type="text" id="slider-amount" placeholder="Enter amount" autocomplete="off">
-        </div>
-
-        <!-- Slider for amount selection -->
-        <div class="slider-container">
-            <span id="min-value">25.00</span>
-            <input type="range" id="slider" min="25" max="500" value="250">
-            <span id="max-value">500.00</span>
-        </div>
-
-        <!-- Bill It Button -->
-        <button id="bill-button">Pay Up</button>
-
-        <!-- Total Expenses and Remaining Balance -->
-        <h3>Total Damage</h3>
-        <div class="total-expenses">
-            <!-- Clickable to open transaction modal -->
-            <span id="total-expenses">$ 0</span>
-            <span id="open-transactions" class="dropdown">▼</span>
-        </div>
-
-        <h3>What's Left</h3>
-        <div class="remaining-balance">
-            <span id="remaining-balance">$ 0</span>
-        </div>
-
-        <!-- Days and Pay Check Info -->
-        <div class="footer">
-            <p id="days-left"></p>
-            <p id="daily-spend"></p>
-            <p><small>v1.0.5.2</small></p>
-        </div>
-
-        <!-- Settings and Bar Graph Icons -->
-        <div class="footer-icons">
-            <!-- Clickable images -->
-            <img src="./images/settings.png" alt="Settings" id="open-settings" class="settings-icon">
-            <img src="./images/graph.png" alt="Graph" id="open-graph" class="graph-icon">
-        </div>
+  <div class="app-container">
+    <!-- Starting Balance Section -->
+    <div class="header">
+      <h3>Starting Bal.</h3>
+      <div class="balance" id="starting-balance" role="button" aria-label="Starting balance (double-click to edit)">$ 0.00</div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span id="close-settings" class="close">&times;</span>
-            <h3>Settings</h3>
+    <!-- Category, Slider and Amount container -->
+    <div class="category-amount-container">
+      <label for="category-dropdown" class="visually-hidden">Category</label>
+      <select id="category-dropdown" aria-label="Category">
+        <option value="Other">Other</option>
+      </select>
 
-            <!-- Manage Categories with Trash Can -->
-            <div class="categories-section">
-                <h4>Manage Categories</h4>
-                <img src="./images/trash-can.png" alt="Delete" id="delete-category" class="trash-icon">
-                <ul id="category-list"></ul>
-                <input type="text" id="new-category" placeholder="Add new category">
-                <button id="add-category">Add Category</button>
-            </div>
-
-            <!-- Manage Pay Frequency -->
-            <div class="pay-frequency-section">
-                <h4>Pay Frequency</h4>
-                <select id="pay-frequency-dropdown">
-                    <option value="monthly">Monthly</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="biweekly">Biweekly</option>
-                </select>
-            </div>
-
-            <!-- App Version -->
-            <div class="version-section">
-                <p class="version-label">App Version: <span id="app-version">Loading...</span></p>
-            </div>
-
-            <!-- Buttons for save and cleanup -->
-            <button id="save-settings-btn">Save Changes</button>
-            <button id="cleanup-btn" class="btn btn-warning">Delete Old Transactions</button>
-        </div>
+      <label for="slider-amount" class="visually-hidden">Amount</label>
+      <input type="text" id="slider-amount" placeholder="Enter amount" autocomplete="off" inputmode="decimal" />
     </div>
 
-    <!-- Edit Transaction Modal -->
-    <div id="edit-transaction-modal" class="modal">
-        <div class="modal-content">
-            <span id="close-edit-transaction" class="close">&times;</span>
-            <h3>Edit Transaction</h3>
-
-            <!-- Flex container to align Amount and Category -->
-            <div class="edit-transaction-row">
-                <label for="edit-amount">Amount:</label>
-                <input type="text" id="edit-amount" class="small-input" placeholder="Amount">
-
-                <!-- Category dropdown -->
-                <select id="edit-category-dropdown"></select>
-            </div>
-            <button id="save-edit-btn">Save Changes</button>
-        </div>
+    <!-- Slider for amount selection -->
+    <div class="slider-container">
+      <span id="min-value">25.00</span>
+      <input type="range" id="slider" min="25" max="500" value="250" aria-label="Amount slider" />
+      <span id="max-value">500.00</span>
     </div>
 
-    <!-- Transaction Log Modal -->
-    <div id="transactions-modal" class="modal">
-        <div class="modal-content">
-            <span id="close-transactions" class="close">&times;</span>
-            <h3>Transactions</h3>
-            <img src="./images/trash-can.png" alt="Delete" id="delete-transaction" class="trash-icon">
-            <ul id="transaction-list"></ul>
-        </div>
+    <!-- Bill It Button -->
+    <button id="bill-button" type="button" aria-label="Add transaction">Pay Up</button>
+
+    <!-- Total Expenses and Remaining Balance -->
+    <h3>Total Damage</h3>
+    <div class="total-expenses">
+      <span id="total-expenses" tabindex="0" aria-label="Total expenses">$ 0.00</span>
+      <span id="open-transactions" class="dropdown" role="button" aria-label="Open transactions">▼</span>
     </div>
 
-    <!-- Graph Modal -->
-    <div id="graph-modal" class="modal">
-        <div class="modal-content">
-            <span id="close-graph" class="close">&times;</span>
-            <h3>Category Summary</h3>
-            <h4>Current Month</h4>
-            <canvas id="barChartCurrentMonth" width="400" height="200"></canvas>
-
-            <h4>Past 3 Months</h4>
-            <canvas id="barChartPast3Months" width="400" height="200"></canvas>
-
-            <h4>Year-to-Date</h4>
-            <canvas id="barChartYTD" width="400" height="200"></canvas>
-        </div>
+    <h3>What's Left</h3>
+    <div class="remaining-balance">
+      <span id="remaining-balance" aria-label="Remaining balance">$ 0.00</span>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js?v=1.0.5.2" crossorigin="anonymous"></script>
-    <script type="module" src="js/app.js?v=1.0.5.2"></script>
+    <!-- Days and Pay Check Info -->
+    <div class="footer">
+      <p id="days-left"></p>
+      <p id="daily-spend"></p>
+      <p><small>v1.0.5.4</small></p>
+    </div>
 
+    <!-- Settings and Bar Graph Icons -->
+    <div class="footer-icons">
+      <img src="./images/settings.png" alt="Settings" id="open-settings" class="settings-icon" role="button" />
+      <img src="./images/graph.png" alt="Graph" id="open-graph" class="graph-icon" role="button" />
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-content">
+      <span id="close-settings" class="close" role="button" aria-label="Close settings">&times;</span>
+      <h3 id="settings-title">Settings</h3>
+
+      <!-- Manage Categories with Trash Can -->
+      <div class="categories-section">
+        <h4>Manage Categories</h4>
+        <img src="./images/trash-can.png" alt="Delete selected categories" id="delete-category" class="trash-icon is-disabled" role="button" aria-disabled="true" />
+        <ul id="category-list" aria-label="Category list"></ul>
+        <input type="text" id="new-category" placeholder="Add new category" autocomplete="off" />
+        <button id="add-category" type="button">Add Category</button>
+      </div>
+
+      <!-- Manage Pay Frequency -->
+      <div class="pay-frequency-section">
+        <h4>Pay Frequency</h4>
+        <label for="pay-frequency-dropdown" class="visually-hidden">Pay Frequency</label>
+        <select id="pay-frequency-dropdown" aria-label="Pay frequency">
+          <option value="monthly">Monthly</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Biweekly</option>
+        </select>
+      </div>
+
+      <!-- Manage Starting Amount -->
+      <div class="starting-amount-section">
+        <h4>Starting Amount</h4>
+        <label for="starting-amount" class="visually-hidden">Starting Amount</label>
+        <input type="text" id="starting-amount" placeholder="Starting amount" inputmode="decimal" autocomplete="off" />
+      </div>
+
+      <!-- Buttons for save and cleanup -->
+      <button id="save-settings-btn" type="button">Save Changes</button>
+      <button id="cleanup-btn" class="btn btn-warning" type="button">Delete Old Transactions</button>
+    </div>
+  </div>
+
+  <!-- Edit Transaction Modal -->
+  <div id="edit-transaction-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-transaction-title">
+    <div class="modal-content">
+      <span id="close-edit-transaction" class="close" role="button" aria-label="Close edit transaction">&times;</span>
+      <h3 id="edit-transaction-title">Edit Transaction</h3>
+
+      <!-- Flex container to align Amount and Category -->
+      <div class="edit-transaction-row">
+        <label for="edit-amount">Amount:</label>
+        <input type="text" id="edit-amount" class="small-input" placeholder="Amount" inputmode="decimal" autocomplete="off" />
+
+        <!-- Category dropdown -->
+        <label for="edit-category-dropdown" class="visually-hidden">Category</label>
+        <select id="edit-category-dropdown" aria-label="Edit category"></select>
+      </div>
+      <button id="save-edit-btn" type="button">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- Transaction Log Modal -->
+  <div id="transactions-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transactions-title">
+    <div class="modal-content">
+      <span id="close-transactions" class="close" role="button" aria-label="Close transactions">&times;</span>
+      <h3 id="transactions-title">Transactions</h3>
+      <img src="./images/trash-can.png" alt="Delete selected transactions" id="delete-transaction" class="trash-icon is-disabled" role="button" aria-disabled="true" />
+      <ul id="transaction-list" aria-label="Transaction list"></ul>
+    </div>
+  </div>
+
+  <!-- Graph Modal -->
+  <div id="graph-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="graph-title">
+    <div class="modal-content">
+      <span id="close-graph" class="close" role="button" aria-label="Close graph">&times;</span>
+      <h3 id="graph-title">Category Summary</h3>
+
+      <h4>Current Month</h4>
+      <canvas id="barChartCurrentMonth" width="400" height="200" aria-label="Current month chart"></canvas>
+
+      <h4>Past 3 Months</h4>
+      <canvas id="barChartPast3Months" width="400" height="200" aria-label="Past 3 months chart"></canvas>
+
+      <h4>Year-to-Date</h4>
+      <canvas id="barChartYTD" width="400" height="200" aria-label="Year-to-date chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Scripts: self-hosted Chart.js (UMD) then app logic -->
+  <script src="js/vendor/chart.umd.min.js?v=4.4.1"></script>
+  <script type="module" src="js/app.js?v=1.0.5.4"></script>
 </body>
 </html>
