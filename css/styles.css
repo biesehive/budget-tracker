@@ -1,4 +1,4 @@
-/* File: css/styles.css v1.0.5.7*/
+/* File: css/styles.css v1.0.5.8*/
 
 /* =============== */
 /* Base & Resets   */
@@ -348,7 +348,7 @@ ul li {
   display: grid;
   grid-template-columns: 20px 1fr var(--amount-width) var(--category-width);
   grid-template-columns: 20px minmax(0, 1fr) var(--amount-width) var(--category-width);
-  align-items: left;
+  align-items: center;
   gap: 8px;
   padding: 10px 8px;
   border: 1px solid #e5e7eb;
@@ -364,10 +364,12 @@ ul li {
 }
 
 .transaction-item input[type="checkbox"] {
-  margin: 0;
+    grid-column: 1;
+    margin: 0;
 }
 
 .transaction-date {
+  grid-column: 2;  
   color: var(--muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
@@ -376,34 +378,8 @@ ul li {
   white-space: nowrap;
 }
 
-/* .transaction-amount {
-  font-weight: 800;
-  color: var(--danger);
-  text-align: right;
-  min-width: var(--amount-width);
-  font-variant-numeric: tabular-nums;
-} */
-
-.transaction-amount {
-  width: var(--amount-width);   /* fixed column width */
-  text-align: right;
-  justify-self: end;
-  font-weight: 800;
-  color: var(--danger);
-  font-variant-numeric: tabular-nums;
-}
-
-/* .transaction-category {
-  font-weight: 600;
-  color: #1f2937;
-  text-align: right;
-  min-width: var(--category-width);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-} */
-
 .transaction-category {
+  grid-column: 3;
   width: var(--category-width); /* fixed column width */
   text-align: right;
   justify-self: end;
@@ -412,6 +388,16 @@ ul li {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.transaction-amount {
+  grid-column: 4;
+  width: var(--amount-width);   /* fixed column width */
+  text-align: right;
+  justify-self: end;
+  font-weight: 800;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ================== */
@@ -589,6 +575,7 @@ canvas {
   .transaction-category {
     display: none; /* hide category column on very small screens */
   }
+  .transaction-amount { grid-column: 4; }
 }
 
 /* ================== */
