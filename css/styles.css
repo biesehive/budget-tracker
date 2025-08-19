@@ -1,4 +1,4 @@
-/* File: css/styles.css */
+/* File: css/styles.css v1.0.5.7*/
 
 /* =============== */
 /* Base & Resets   */
@@ -95,8 +95,6 @@ h4 {
 }
 
 /* Center the summary rows and stack content vertically */
-/* Replace the earlier summary layout rules with these */
-
 /* Shared summary styles */
 .total-expenses,
 .remaining-balance {
@@ -112,6 +110,7 @@ h4 {
   align-items: baseline;
   justify-content: center;
   gap: 8px;
+  color: var(--danger); /* red for Total Damage */
 }
 
 /* What's Left: keep stacked number/text */
@@ -120,6 +119,7 @@ h4 {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  color: var(--success); /* green for What's Left */
 }
 
 /* Caret spacing next to the number (no vertical offset) */
@@ -347,7 +347,8 @@ ul li {
 .transaction-item {
   display: grid;
   grid-template-columns: 20px 1fr var(--amount-width) var(--category-width);
-  align-items: center;
+  grid-template-columns: 20px minmax(0, 1fr) var(--amount-width) var(--category-width);
+  align-items: left;
   gap: 8px;
   padding: 10px 8px;
   border: 1px solid #e5e7eb;
@@ -375,19 +376,39 @@ ul li {
   white-space: nowrap;
 }
 
-.transaction-amount {
+/* .transaction-amount {
   font-weight: 800;
   color: var(--danger);
   text-align: right;
   min-width: var(--amount-width);
   font-variant-numeric: tabular-nums;
+} */
+
+.transaction-amount {
+  width: var(--amount-width);   /* fixed column width */
+  text-align: right;
+  justify-self: end;
+  font-weight: 800;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
 }
 
-.transaction-category {
+/* .transaction-category {
   font-weight: 600;
   color: #1f2937;
   text-align: right;
   min-width: var(--category-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+} */
+
+.transaction-category {
+  width: var(--category-width); /* fixed column width */
+  text-align: right;
+  justify-self: end;
+  font-weight: 600;
+  color: #1f2937;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -562,7 +583,8 @@ canvas {
     grid-template-columns: 1fr 1fr;
   }
   .transaction-item {
-    grid-template-columns: 20px 1fr var(--amount-width);
+    /* grid-template-columns: 20px 1fr var(--amount-width); */
+    grid-template-columns: 20px minmax(0, 1fr) var(--amount-width);
   }
   .transaction-category {
     display: none; /* hide category column on very small screens */
