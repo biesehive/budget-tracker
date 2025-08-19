@@ -1,4 +1,4 @@
-/* File: css/styles.css v1.0.5.8*/
+/* File: css/styles.css v1.0.5.9*/
 
 /* =============== */
 /* Base & Resets   */
@@ -346,7 +346,6 @@ ul li {
 /* =============================== */
 .transaction-item {
   display: grid;
-  grid-template-columns: 20px 1fr var(--amount-width) var(--category-width);
   grid-template-columns: 20px minmax(0, 1fr) var(--amount-width) var(--category-width);
   align-items: center;
   gap: 8px;
@@ -575,7 +574,7 @@ canvas {
   .transaction-category {
     display: none; /* hide category column on very small screens */
   }
-  .transaction-amount { grid-column: 4; }
+  .transaction-amount { grid-column: 3; }  /* hide category on sml screens */
 }
 
 /* ================== */

@@ -1,5 +1,5 @@
-// File: js/chart.js v1.0.5.6
-// Budget Tracker – Standalone charts module (no placeholders)
+// File: js/chart.js v1.0.5.9
+// Budget Tracker – Standalone charts module with Mood pie chart (no placeholders)
 
 "use strict";
 
@@ -8,6 +8,7 @@ let db = null;
 let currentMonthChart = null;
 let past3MonthsChart = null;
 let ytdChart = null;
+let moodPieChart = null;
 
 // ---------------- IndexedDB (read-only in this module) ----------------
 function openDB() {
@@ -107,7 +108,50 @@ function renderBarChart(ctx, existingChart, labels, values, label) {
         x: { title: { display: true, text: "Amount ($)" }, ticks: { precision: 0 } },
         y: { title: { display: true, text: "Categories" } },
       },
-      plugins: { legend: { display: !!label } },
+      plugins: {
+        legend: { display: !!label },
+        tooltip: { callbacks: { label: (ctx) => `$${Number(ctx.parsed.x || 0).toFixed(2)}` } },
+      },
+    },
+  });
+}
+
+function renderPieChart(ctx, existingChart, labels, values, colors) {
+  if (!ensureChartJS()) return null;
+  if (existingChart && typeof existingChart.destroy === "function") existingChart.destroy();
+
+  const total = values.reduce((a, b) => a + b, 0) || 0;
+
+  return new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [
+        {
+          data: values,
+          backgroundColor: colors,
+          borderColor: "#ffffff",
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { usePointStyle: true },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const val = Number(ctx.parsed || 0);
+              const pct = total ? ((val / total) * 100).toFixed(1) : "0.0";
+              return `${ctx.label}: ${val} (${pct}%)`;
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -145,6 +189,19 @@ function filterByYTD(transactions) {
   });
 }
 
+// ---------------- Mood Aggregation ----------------
+function computeMoodCounts(transactions) {
+  // Only three moods: smile, neutral, frown. Treat anything else/missing as neutral.
+  let smile = 0, neutral = 0, frown = 0;
+  for (const t of transactions) {
+    const m = String(t.mood || "").toLowerCase();
+    if (m === "smile") smile += 1;
+    else if (m === "frown") frown += 1;
+    else neutral += 1;
+  }
+  return { smile, neutral, frown };
+}
+
 // ---------------- Public API ----------------
 async function displayBarGraphCurrentMonth() {
   const canvas = document.getElementById("barChartCurrentMonth");
@@ -176,17 +233,35 @@ async function displayBarGraphYTD() {
   ytdChart = renderBarChart(ctx, ytdChart, labels, values, "Year-to-Date Expenses");
 }
 
+async function displayMoodPieChart() {
+  const canvas = document.getElementById("moodPieChart");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const txns = await getTransactions();
+  const { smile, neutral, frown } = computeMoodCounts(txns);
+
+  const labels = ["Smile", "Neutral", "Frown"];
+  const values = [smile, neutral, frown];
+
+  // Colors: Smile → green, Neutral → black, Frown → deep orange
+  const colors = ["#22c55e", "#111827", "#f97316"];
+
+  moodPieChart = renderPieChart(ctx, moodPieChart, labels, values, colors);
+}
+
 async function refreshAllCharts() {
   await displayBarGraphCurrentMonth();
   await displayBarGraphPast3Months();
   await displayBarGraphYTD();
+  await displayMoodPieChart();
 }
 
 function destroyAllCharts() {
   if (currentMonthChart && currentMonthChart.destroy) currentMonthChart.destroy();
   if (past3MonthsChart && past3MonthsChart.destroy) past3MonthsChart.destroy();
   if (ytdChart && ytdChart.destroy) ytdChart.destroy();
-  currentMonthChart = past3MonthsChart = ytdChart = null;
+  if (moodPieChart && moodPieChart.destroy) moodPieChart.destroy();
+  currentMonthChart = past3MonthsChart = ytdChart = moodPieChart = null;
 }
 
 // ---------------- Exports ----------------
@@ -194,6 +269,7 @@ export {
   displayBarGraphCurrentMonth,
   displayBarGraphPast3Months,
   displayBarGraphYTD,
+  displayMoodPieChart,
   refreshAllCharts,
   destroyAllCharts,
 };
@@ -204,6 +280,7 @@ if (typeof window !== "undefined") {
     displayBarGraphCurrentMonth,
     displayBarGraphPast3Months,
     displayBarGraphYTD,
+    displayMoodPieChart,
     refreshAllCharts,
     destroyAllCharts,
   };

@@ -1,4 +1,5 @@
-// File: js/app.js  v1.0.5.7
+// File: js/app.js v1.0.5.9
+// Budget Tracker – Production-ready app.js with Mood flow (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";
 
@@ -7,6 +8,7 @@ import {
   displayBarGraphCurrentMonth,
   displayBarGraphPast3Months,
   displayBarGraphYTD,
+  displayMoodPieChart,
 } from "./chart.js";
 
 // ---------------- Service Worker ----------------
@@ -23,6 +25,7 @@ if ("serviceWorker" in navigator) {
 let db;
 let startingBalance = 0;
 let isProcessingTransaction = false;
+let pendingMoodTxnId = null; // holds the ID of the last-added transaction awaiting mood selection
 
 // ---------------- IndexedDB Helpers ----------------
 function openDB() {
@@ -69,7 +72,7 @@ function saveToIndexedDB(storeName, data) {
     const tx = db.transaction([storeName], "readwrite");
     const store = tx.objectStore(storeName);
     const request = store.put(data);
-    request.onsuccess = () => resolve();
+    request.onsuccess = () => resolve(request.result);
     request.onerror = () => {
       console.error("Error saving data to IndexedDB", request.error);
       reject(request.error);
@@ -95,7 +98,7 @@ function addRecord(storeName, data) {
     const tx = db.transaction([storeName], "readwrite");
     const store = tx.objectStore(storeName);
     const request = store.add(data);
-    request.onsuccess = () => resolve();
+    request.onsuccess = () => resolve(request.result); // return the new record ID
     request.onerror = () => {
       console.error("Error adding record to IndexedDB", request.error);
       reject(request.error);
@@ -157,6 +160,11 @@ function openModal(modalId) {
 function closeModal(modalId) {
   const el = qs(modalId);
   if (el) el.classList.remove("is-open");
+}
+
+function isGraphOpen() {
+  const el = qs("graph-modal");
+  return !!(el && el.classList.contains("is-open"));
 }
 
 function updateSliderAmount() {
@@ -223,6 +231,16 @@ function bindEventListeners() {
   on("open-transactions", "click", openTransactions);
   on("total-expenses", "dblclick", openTransactions);
   on("slider", "input", updateSliderAmount);
+
+  // Mood modal buttons
+  on("mood-smile", "click", () => handleMoodSelection("smile"));
+  on("mood-neutral", "click", () => handleMoodSelection("neutral"));
+  on("mood-frown", "click", () => handleMoodSelection("frown"));
+  on("mood-skip", "click", () => handleMoodSelection(null));
+  on("close-mood", "click", () => {
+    pendingMoodTxnId = null;
+    closeModal("mood-modal");
+  });
 
   const amountField = qs("slider-amount");
   if (amountField) {
@@ -483,10 +501,29 @@ async function editTransaction(transactionId) {
     catDropdown.appendChild(opt);
   });
 
+  // Preselect mood radios
+  const mood = (txn.mood || "neutral").toLowerCase();
+  const smile = qs("edit-mood-smile");
+  const neutral = qs("edit-mood-neutral");
+  const frown = qs("edit-mood-frown");
+  if (smile && neutral && frown) {
+    smile.checked = mood === "smile";
+    neutral.checked = mood === "neutral";
+    frown.checked = mood === "frown";
+  }
+
   openModal("edit-transaction-modal");
 
   const saveBtn = qs("save-edit-btn");
   if (saveBtn) saveBtn.onclick = async () => { await saveTransactionEdits(transactionId); };
+}
+
+function getSelectedEditMood() {
+  const radios = document.querySelectorAll('input[name="edit-mood"]');
+  for (const r of radios) {
+    if (r.checked) return r.value;
+  }
+  return "neutral";
 }
 
 async function saveTransactionEdits(transactionId) {
@@ -494,18 +531,25 @@ async function saveTransactionEdits(transactionId) {
   const catDropdown = qs("edit-category-dropdown");
   const newAmount = sanitizeAmountInput(amountEl?.value || "");
   const newCategory = (catDropdown?.value || "Other").trim() || "Other";
+  const newMood = getSelectedEditMood();
 
   if (isNaN(newAmount) || newAmount <= 0) { alert("Please enter a valid amount greater than 0."); return; }
 
   const txn = await getFromIndexedDB("transactions", transactionId);
   if (!txn) { alert("Transaction not found."); return; }
 
-  txn.amount = Number(newAmount); txn.category = newCategory;
+  txn.amount = Number(newAmount);
+  txn.category = newCategory;
+  txn.mood = newMood;
 
   await saveToIndexedDB("transactions", txn);
   closeModal("edit-transaction-modal");
   await populateTransactionList();
   await updateTotalExpenses();
+
+  if (isGraphOpen()) {
+    await displayMoodPieChart();
+  }
 }
 
 async function deleteSelectedTransactions() {
@@ -516,6 +560,7 @@ async function deleteSelectedTransactions() {
     for (const id of ids) await deleteTransactionById(id);
     await populateTransactionList();
     await updateTotalExpenses();
+    if (isGraphOpen()) await displayMoodPieChart();
   } catch (err) {
     alert("Failed to delete selected transactions. See console for details.");
     console.error(err);
@@ -546,8 +591,17 @@ async function billIt() {
   const formattedDate = formatDateForStorage(new Date());
 
   try {
-    await addRecord("transactions", { date: formattedDate, amount: Number(amountToBill), category: selectedCategory });
+    const newId = await addRecord("transactions", {
+      date: formattedDate,
+      amount: Number(amountToBill),
+      category: selectedCategory,
+      mood: null, // will be set via mood modal
+    });
+    pendingMoodTxnId = newId;
     await updateTotalExpenses();
+
+    // Open mood prompt
+    openModal("mood-modal");
   } catch (err) {
     alert("Failed to add transaction. See console for details.");
     console.error(err);
@@ -562,6 +616,31 @@ async function billIt() {
   isProcessingTransaction = false;
   billButton.disabled = false;
   amountField.disabled = false;
+}
+
+// ---------------- Mood Flow ----------------
+async function handleMoodSelection(moodValue) {
+  if (!pendingMoodTxnId) {
+    closeModal("mood-modal");
+    return;
+  }
+  try {
+    const txn = await getFromIndexedDB("transactions", pendingMoodTxnId);
+    if (txn) {
+      if (moodValue) {
+        txn.mood = moodValue;
+        await saveToIndexedDB("transactions", txn);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to set mood:", err);
+  } finally {
+    pendingMoodTxnId = null;
+    closeModal("mood-modal");
+    if (isGraphOpen()) {
+      await displayMoodPieChart();
+    }
+  }
 }
 
 // ---------------- Starting Balance ----------------
@@ -662,6 +741,7 @@ async function deleteOldTransactions() {
 
   await populateTransactionList();
   await updateTotalExpenses();
+  if (isGraphOpen()) await displayMoodPieChart();
   alert("Old transactions deleted.");
 }
 
@@ -671,6 +751,7 @@ async function openGraph() {
   await displayBarGraphCurrentMonth();
   await displayBarGraphPast3Months();
   await displayBarGraphYTD();
+  await displayMoodPieChart();
 }
 
 // ---------------- Clear Stores (Utility) ----------------
