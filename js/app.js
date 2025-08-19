@@ -1,7 +1,14 @@
 // File: js/app.js
-// Budget Tracker – Hardened app.js (class toggles, self-hosted Chart.js, no inline styles)
+// Budget Tracker – Production-ready app.js (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";
+
+// ---------------- Charts (separate module) ----------------
+import {
+  displayBarGraphCurrentMonth,
+  displayBarGraphPast3Months,
+  displayBarGraphYTD,
+} from "./chart.js";
 
 // ---------------- Service Worker ----------------
 if ("serviceWorker" in navigator) {
@@ -17,9 +24,6 @@ if ("serviceWorker" in navigator) {
 let db;
 let startingBalance = 0;
 let isProcessingTransaction = false;
-let currentMonthChart = null;
-let past3MonthsChart = null;
-let ytdChart = null;
 
 // ---------------- IndexedDB Helpers ----------------
 function openDB() {
@@ -114,9 +118,13 @@ function deleteTransactionById(id) {
 }
 
 // ---------------- Utility ----------------
-function qs(id) { return document.getElementById(id); }
+function qs(id) {
+  return document.getElementById(id);
+}
 
-function formatDateForStorage(date) { return date.toISOString().split("T")[0]; }
+function formatDateForStorage(date) {
+  return date.toISOString().split("T")[0];
+}
 
 function formatDateForDisplay(dateStr) {
   if (!dateStr) return "Invalid Date";
@@ -142,20 +150,25 @@ function parseDate(dateString) {
   return new Date();
 }
 
-function closeModal(modalId) {
-  const el = qs(modalId);
-  if (el) el.classList.remove("is-open");
-}
-
 function openModal(modalId) {
   const el = qs(modalId);
   if (el) el.classList.add("is-open");
+}
+
+function closeModal(modalId) {
+  const el = qs(modalId);
+  if (el) el.classList.remove("is-open");
 }
 
 function updateSliderAmount() {
   const slider = qs("slider");
   const amountField = qs("slider-amount");
   if (slider && amountField) amountField.value = parseFloat(slider.value).toFixed(2);
+}
+
+function sanitizeAmountInput(value) {
+  const num = parseFloat(String(value).replace(/[^\d.]/g, ""));
+  return Number.isFinite(num) ? num : NaN;
 }
 
 async function updateRemainingBalance(startBalance, expenses) {
@@ -189,14 +202,12 @@ function updateDaysLeft() {
   if (el) el.innerText = `${daysLeft} days until the end of the month`;
 }
 
-function sanitizeAmountInput(value) {
-  const num = parseFloat(String(value).replace(/[^\d.]/g, ""));
-  return Number.isFinite(num) ? num : NaN;
-}
-
 // ---------------- Event Bindings ----------------
 function bindEventListeners() {
-  const on = (id, event, fn) => { const el = qs(id); if (el) el.addEventListener(event, fn); };
+  const on = (id, event, fn) => {
+    const el = qs(id);
+    if (el) el.addEventListener(event, fn);
+  };
 
   on("open-settings", "click", openSettings);
   on("open-graph", "click", openGraph);
@@ -271,8 +282,7 @@ async function populateCategoryList() {
         <span class="category-name" id="category-${index}" title="Double-click to rename">${category}</span>
       </label>
     `;
-    const nameSpan = li.querySelector(".category-name");
-    nameSpan.addEventListener("dblclick", () => editCategory(index));
+    li.querySelector(".category-name").addEventListener("dblclick", () => editCategory(index));
     listEl.appendChild(li);
   });
 
@@ -395,7 +405,9 @@ async function deleteSelectedCategories() {
 }
 
 // ---------------- Transactions ----------------
-async function getAllTransactions() { return getAllRecords("transactions"); }
+async function getAllTransactions() {
+  return getAllRecords("transactions");
+}
 
 async function openTransactions() {
   openModal("transactions-modal");
@@ -570,8 +582,10 @@ function editStartingBalance() {
       startingBalance = Number(newVal);
       await saveToIndexedDB("settings", { id: "startingBalance", value: startingBalance });
       balanceDiv.innerText = `$ ${startingBalance.toFixed(2)}`;
+
       const startingAmtInput = qs("starting-amount");
       if (startingAmtInput) startingAmtInput.value = startingBalance.toFixed(2);
+
       await updateTotalExpenses();
     } else {
       alert("Please enter a valid non-negative number for the starting balance.");
@@ -652,86 +666,12 @@ async function deleteOldTransactions() {
   alert("Old transactions deleted.");
 }
 
-// ---------------- Graphs (Chart.js) ----------------
-function buildCategoryTotals(transactions) {
-  const totals = {};
-  transactions.forEach((t) => {
-    const c = (t.category || "Other").trim() || "Other";
-    totals[c] = (totals[c] || 0) + (Number(t.amount) || 0);
-  });
-  const labels = Object.keys(totals).filter((k) => totals[k] > 0);
-  const values = labels.map((k) => totals[k]);
-  return { labels, values };
-}
-
-function renderBarChart(ctx, chartRef, labels, values, label) {
-  if (chartRef && chartRef.destroy) chartRef.destroy();
-  if (typeof Chart === "undefined") return null; // Chart.js guard
-
-  return new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets: [{ label, data: values }] },
-    options: {
-      responsive: true,
-      indexAxis: "y",
-      scales: {
-        x: { title: { display: true, text: "Amount ($)" }, ticks: { precision: 0 } },
-        y: { title: { display: true, text: "Categories" } },
-      },
-      plugins: { legend: { display: !!label } },
-    },
-  });
-}
-
+// ---------------- Graph Trigger ----------------
 async function openGraph() {
   openModal("graph-modal");
   await displayBarGraphCurrentMonth();
   await displayBarGraphPast3Months();
   await displayBarGraphYTD();
-}
-
-async function displayBarGraphCurrentMonth() {
-  const canvas = qs("barChartCurrentMonth"); if (!canvas) return;
-  const data = await filterTransactionsByCurrentMonth();
-  const { labels, values } = buildCategoryTotals(data);
-  currentMonthChart = renderBarChart(canvas.getContext("2d"), currentMonthChart, labels, values, "Expenses for Current Month");
-}
-
-async function displayBarGraphPast3Months() {
-  const canvas = qs("barChartPast3Months"); if (!canvas) return;
-  const data = await filterTransactionsByPast3Months();
-  const { labels, values } = buildCategoryTotals(data);
-  past3MonthsChart = renderBarChart(canvas.getContext("2d"), past3MonthsChart, labels, values, "Expenses for Past 3 Months");
-}
-
-async function displayBarGraphYTD() {
-  const canvas = qs("barChartYTD"); if (!canvas) return;
-  const data = await filterTransactionsByYTD();
-  const { labels, values } = buildCategoryTotals(data);
-  ytdChart = renderBarChart(canvas.getContext("2d"), ytdChart, labels, values, "Year-to-Date Expenses");
-}
-
-// ---------------- Date Filters ----------------
-async function filterTransactionsByCurrentMonth() {
-  const today = new Date();
-  const m = today.getMonth();
-  const y = today.getFullYear();
-  const txns = await getAllTransactions();
-  return txns.filter((t) => { const d = parseDate(t.date); return d.getMonth() === m && d.getFullYear() === y; });
-}
-
-async function filterTransactionsByPast3Months() {
-  const today = new Date();
-  const from = new Date(today.getFullYear(), today.getMonth() - 2, 1);
-  const txns = await getAllTransactions();
-  return txns.filter((t) => { const d = parseDate(t.date); return d >= from && d <= today; });
-}
-
-async function filterTransactionsByYTD() {
-  const today = new Date();
-  const from = new Date(today.getFullYear(), 0, 1);
-  const txns = await getAllTransactions();
-  return txns.filter((t) => { const d = parseDate(t.date); return d >= from && d <= today; });
 }
 
 // ---------------- Clear Stores (Utility) ----------------
@@ -789,5 +729,3 @@ function clearAllStores() { ["transactions", "categories", "settings"].forEach((
   const startingAmtInput = qs("starting-amount");
   if (startingAmtInput) startingAmtInput.value = startingBalance.toFixed(2);
 })();
-
-export { getAllRecords };

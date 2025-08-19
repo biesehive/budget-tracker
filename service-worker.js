@@ -4,7 +4,7 @@
 "use strict";
 
 /* Versioning & Cache Names */
-const APP_VERSION = "1.0.5.4";
+const APP_VERSION = "1.0.5.5";
 const STATIC_CACHE = `budget-tracker-static-v${APP_VERSION}`;
 const RUNTIME_CACHE = `budget-tracker-runtime-v${APP_VERSION}`;
 

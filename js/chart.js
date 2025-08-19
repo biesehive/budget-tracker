@@ -1,161 +1,5 @@
-
-// // chart.js
-
-// let currentMonthChart = null;
-// let past3MonthsChart = null;
-// let rollingYearChart = null;
-// import { getAllRecords } from './app.js';
-
-// async function displayBarGraphCurrentMonth() {
-//     const ctx = document.getElementById('barChartCurrentMonth')?.getContext('2d');
-//     if (!ctx) return;
-
-//     const transactions = await getAllRecords('transactions');
-//     const categoryTotals = {};
-
-//     const now = new Date();
-//     const currentMonth = now.getMonth();
-//     const currentYear = now.getFullYear();
-
-//     transactions.forEach(({ date, amount, category }) => {
-//         const tDate = new Date(date);
-//         if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
-//             categoryTotals[category || 'Other'] = (categoryTotals[category || 'Other'] || 0) + amount;
-//         }
-//     });
-
-//     if (currentMonthChart) currentMonthChart.destroy();
-
-//     currentMonthChart = new Chart(ctx, {
-//         type: 'bar',
-//         data: {
-//             labels: Object.keys(categoryTotals),
-//             datasets: [{
-//                 label: 'Current Month Expenses',
-//                 data: Object.values(categoryTotals),
-//                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
-//                 borderColor: 'rgba(75, 192, 192, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             indexAxis: 'y',
-//             scales: {
-//                 x: {
-//                     beginAtZero: true,
-//                     title: { display: true, text: 'Amount ($)' }
-//                 },
-//                 y: {
-//                     title: { display: true, text: 'Categories' }
-//                 }
-//             }
-//         }
-//     });
-// }
-
-// async function displayBarGraphPast3Months() {
-//     const ctx = document.getElementById('barChartPast3Months')?.getContext('2d');
-//     if (!ctx) return;
-
-//     const transactions = await getAllRecords('transactions');
-//     const categoryTotals = {};
-
-//     const now = new Date();
-//     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-
-//     transactions.forEach(({ date, amount, category }) => {
-//         const tDate = new Date(date);
-//         if (tDate >= threeMonthsAgo && tDate <= now) {
-//             categoryTotals[category || 'Other'] = (categoryTotals[category || 'Other'] || 0) + amount;
-//         }
-//     });
-
-//     if (past3MonthsChart) past3MonthsChart.destroy();
-
-//     past3MonthsChart = new Chart(ctx, {
-//         type: 'bar',
-//         data: {
-//             labels: Object.keys(categoryTotals),
-//             datasets: [{
-//                 label: 'Past 3 Months Expenses',
-//                 data: Object.values(categoryTotals),
-//                 backgroundColor: 'rgba(153, 102, 255, 0.2)',
-//                 borderColor: 'rgba(153, 102, 255, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             indexAxis: 'y',
-//             scales: {
-//                 x: {
-//                     beginAtZero: true,
-//                     title: { display: true, text: 'Amount ($)' }
-//                 },
-//                 y: {
-//                     title: { display: true, text: 'Categories' }
-//                 }
-//             }
-//         }
-//     });
-// }
-
-// async function displayBarGraphRollingYear() {
-//     const ctx = document.getElementById('barChartYTD')?.getContext('2d');
-//     if (!ctx) return;
-
-//     const transactions = await getAllRecords('transactions');
-//     const categoryTotals = {};
-
-//     const now = new Date();
-//     const oneYearAgo = new Date(now);
-//     oneYearAgo.setFullYear(now.getFullYear() - 1);
-
-//     transactions.forEach(({ date, amount, category }) => {
-//         const tDate = new Date(date);
-//         if (tDate >= oneYearAgo && tDate <= now) {
-//             categoryTotals[category || 'Other'] = (categoryTotals[category || 'Other'] || 0) + amount;
-//         }
-//     });
-
-//     if (rollingYearChart) rollingYearChart.destroy();
-
-//     rollingYearChart = new Chart(ctx, {
-//         type: 'bar',
-//         data: {
-//             labels: Object.keys(categoryTotals),
-//             datasets: [{
-//                 label: 'Rolling 12-Month Expenses',
-//                 data: Object.values(categoryTotals),
-//                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
-//                 borderColor: 'rgba(255, 159, 64, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             indexAxis: 'y',
-//             scales: {
-//                 x: {
-//                     beginAtZero: true,
-//                     title: { display: true, text: 'Amount ($)' }
-//                 },
-//                 y: {
-//                     title: { display: true, text: 'Categories' }
-//                 }
-//             }
-//         }
-//     });
-// }
-
-// export {
-//     displayBarGraphCurrentMonth,
-//     displayBarGraphPast3Months,
-//     displayBarGraphRollingYear
-// };
 // File: js/chart.js
-// Budget Tracker – Production-ready chart.js (no placeholders, full logic)
+// Budget Tracker – Standalone charts module (no placeholders)
 
 "use strict";
 
@@ -165,13 +9,12 @@ let currentMonthChart = null;
 let past3MonthsChart = null;
 let ytdChart = null;
 
-// ---------------- IndexedDB Helpers (read-mostly) ----------------
+// ---------------- IndexedDB (read-only in this module) ----------------
 function openDB() {
   if (db) return Promise.resolve(db);
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("budgetDB", 1);
     request.onupgradeneeded = function (e) {
-      // Ensure stores exist (idempotent)
       db = e.target.result;
       if (!db.objectStoreNames.contains("transactions")) {
         db.createObjectStore("transactions", { keyPath: "id", autoIncrement: true });
@@ -188,7 +31,7 @@ function openDB() {
       resolve(db);
     };
     request.onerror = function (e) {
-      console.error("Chart module: Error opening IndexedDB:", e.target?.error || e);
+      console.error("[charts] Error opening IndexedDB:", e.target?.error || e);
       reject(e);
     };
   });
@@ -203,7 +46,7 @@ function getAllRecords(storeName) {
       const request = store.getAll();
       request.onsuccess = () => resolve(request.result || []);
       request.onerror = () => {
-        console.error("Chart module: Error retrieving records", request.error);
+        console.error("[charts] Error retrieving records", request.error);
         reject(request.error);
       };
     } catch (err) {
@@ -213,6 +56,14 @@ function getAllRecords(storeName) {
 }
 
 // ---------------- Utilities ----------------
+function ensureChartJS() {
+  if (typeof Chart === "undefined") {
+    console.warn("[charts] Chart.js is not loaded; charts will not render.");
+    return false;
+  }
+  return true;
+}
+
 function parseDate(dateString) {
   if (!dateString) return new Date(NaN);
   if (typeof dateString === "string") {
@@ -226,16 +77,7 @@ function parseDate(dateString) {
       return new Date(c, (a || 1) - 1, b || 1);
     }
   }
-  // Fallback to native parsing for Date objects or other supported formats
   return new Date(dateString);
-}
-
-function ensureChartJS() {
-  if (typeof Chart === "undefined") {
-    console.warn("Chart.js is not loaded; cannot render charts.");
-    return false;
-  }
-  return true;
 }
 
 function buildCategoryTotals(transactions) {
@@ -257,30 +99,20 @@ function renderBarChart(ctx, existingChart, labels, values, label) {
   if (existingChart && typeof existingChart.destroy === "function") existingChart.destroy();
   return new Chart(ctx, {
     type: "bar",
-    data: {
-      labels,
-      datasets: [{ label, data: values }],
-    },
+    data: { labels, datasets: [{ label, data: values }] },
     options: {
       responsive: true,
       indexAxis: "y",
       scales: {
-        x: {
-          title: { display: true, text: "Amount ($)" },
-          ticks: { precision: 0 },
-        },
-        y: {
-          title: { display: true, text: "Categories" },
-        },
+        x: { title: { display: true, text: "Amount ($)" }, ticks: { precision: 0 } },
+        y: { title: { display: true, text: "Categories" } },
       },
-      plugins: {
-        legend: { display: !!label },
-      },
+      plugins: { legend: { display: !!label } },
     },
   });
 }
 
-// ---------------- Data Filters ----------------
+// ---------------- Filters ----------------
 async function getTransactions() {
   return getAllRecords("transactions");
 }
@@ -313,7 +145,7 @@ function filterByYTD(transactions) {
   });
 }
 
-// ---------------- Public Chart Renderers ----------------
+// ---------------- Public API ----------------
 async function displayBarGraphCurrentMonth() {
   const canvas = document.getElementById("barChartCurrentMonth");
   if (!canvas) return;
@@ -344,7 +176,6 @@ async function displayBarGraphYTD() {
   ytdChart = renderBarChart(ctx, ytdChart, labels, values, "Year-to-Date Expenses");
 }
 
-// ---------------- Convenience API ----------------
 async function refreshAllCharts() {
   await displayBarGraphCurrentMonth();
   await displayBarGraphPast3Months();
@@ -358,7 +189,7 @@ function destroyAllCharts() {
   currentMonthChart = past3MonthsChart = ytdChart = null;
 }
 
-// ---------------- Exports (ESM + Global) ----------------
+// ---------------- Exports ----------------
 export {
   displayBarGraphCurrentMonth,
   displayBarGraphPast3Months,
@@ -367,7 +198,7 @@ export {
   destroyAllCharts,
 };
 
-// Optional global attachment for non-module usage
+// Optional global for non-module callers
 if (typeof window !== "undefined") {
   window.BudgetCharts = {
     displayBarGraphCurrentMonth,
