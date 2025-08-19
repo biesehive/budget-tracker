@@ -1,4 +1,4 @@
-// File: js/app.js v1.0.5.9
+// File: js/app.js v1.0.6.0
 // Budget Tracker – Production-ready app.js with Mood flow (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";

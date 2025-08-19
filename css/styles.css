@@ -1,4 +1,4 @@
-/* File: css/styles.css v1.0.5.9*/
+/* File: css/styles.css v1.0.6.0*/
 
 /* =============== */
 /* Base & Resets   */
@@ -593,4 +593,25 @@ canvas {
   button {
     display: none !important;
   }
+}
+
+/* Mood UI (CSP-safe, no inline styles) */
+.mood-group,
+.mood-choice-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.mood-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mood-label {
+  display: inline-flex;
+  align-items: center;
 }

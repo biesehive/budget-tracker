@@ -24,7 +24,7 @@
   <title>Budget Tracker</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css?v=1.0.5.9" />
+  <link rel="stylesheet" href="css/styles.css?v=1.0.6.0" />
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="/budget-tracker/manifest.json" />
@@ -82,7 +82,7 @@
     <div class="footer">
       <p id="days-left"></p>
       <p id="daily-spend"></p>
-      <p><small>v1.0.5.9</small></p>
+      <p><small>v1.0.6.0</small></p>
     </div>
 
     <!-- Settings and Bar Graph Icons -->
@@ -137,12 +137,11 @@
       <span id="close-edit-transaction" class="close" role="button" aria-label="Close edit transaction">&times;</span>
       <h3 id="edit-transaction-title">Edit Transaction</h3>
 
-      <!-- Flex container to align Amount and Category -->
+      <!-- Amount and Category -->
       <div class="edit-transaction-row">
         <label for="edit-amount">Amount:</label>
         <input type="text" id="edit-amount" class="small-input" placeholder="Amount" inputmode="decimal" autocomplete="off" />
 
-        <!-- Category dropdown -->
         <label for="edit-category-dropdown" class="visually-hidden">Category</label>
         <select id="edit-category-dropdown" aria-label="Edit category"></select>
       </div>
@@ -150,8 +149,8 @@
       <!-- Mood selection (edit) -->
       <div class="edit-transaction-row" aria-label="Edit mood">
         <span>Mood:</span>
-        <div id="edit-mood-group" role="radiogroup" aria-label="Transaction mood">
-          <label style="margin-right:10px;">
+        <div id="edit-mood-group" class="mood-group" role="radiogroup" aria-label="Transaction mood">
+          <label class="mood-label">
             <input type="radio" name="edit-mood" value="smile" id="edit-mood-smile" />
             <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="10" fill="none" stroke="#22c55e" stroke-width="2"></circle>
@@ -160,7 +159,7 @@
               <path d="M8 14c1.2 1.3 2.7 2 4 2s2.8-.7 4-2" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"></path>
             </svg>
           </label>
-          <label style="margin-right:10px;">
+          <label class="mood-label">
             <input type="radio" name="edit-mood" value="neutral" id="edit-mood-neutral" />
             <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="10" fill="none" stroke="#111827" stroke-width="2"></circle>
@@ -169,7 +168,7 @@
               <path d="M9 15h6" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
             </svg>
           </label>
-          <label>
+          <label class="mood-label">
             <input type="radio" name="edit-mood" value="frown" id="edit-mood-frown" />
             <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="10" fill="none" stroke="#f97316" stroke-width="2"></circle>
@@ -181,7 +180,7 @@
         </div>
       </div>
 
-      <button id="save-edit-btn">Save Changes</button>
+      <button id="save-edit-btn" type="button">Save Changes</button>
     </div>
   </div>
 
@@ -221,7 +220,7 @@
       <span id="close-mood" class="close" role="button" aria-label="Close mood prompt">&times;</span>
       <h3 id="mood-title">How did that purchase feel?</h3>
       <p>Select a mood for this transaction:</p>
-      <div id="mood-choice-group" role="group" aria-label="Choose mood" style="display:flex; gap:16px; justify-content:center; margin:12px 0;">
+      <div id="mood-choice-group" class="mood-choice-group" role="group" aria-label="Choose mood">
         <button id="mood-smile" type="button" aria-label="Happy">
           <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="10" fill="none" stroke="#22c55e" stroke-width="2"></circle>
@@ -247,7 +246,7 @@
           </svg>
         </button>
       </div>
-      <div style="display:flex; justify-content:center; gap:10px;">
+      <div class="mood-actions">
         <button id="mood-skip" type="button">Skip</button>
       </div>
     </div>
@@ -255,7 +254,7 @@
 
   <!-- Scripts: Chart.js CDN, then charts module, then app logic -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="js/chart.js?v=1.0.5.9"></script>
-  <script type="module" src="js/app.js?v=1.0.5.9"></script>
+  <script type="module" src="js/chart.js?v=1.0.6.0"></script>
+  <script type="module" src="js/app.js?v=1.0.6.0"></script>
 </body>
 </html>
