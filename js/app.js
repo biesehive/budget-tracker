@@ -1,5 +1,4 @@
-// File: js/app.js
-// Budget Tracker – Production-ready app.js (charts separated, full UI hooks, IndexedDB-backed)
+// File: js/app.js  v1.0.5.6
 
 "use strict";
 

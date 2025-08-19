@@ -1,5 +1,4 @@
 /* File: css/styles.css */
-/* Budget Tracker – Production-ready styles (centered summaries, consistent transaction widths) */
 
 /* =============== */
 /* Base & Resets   */
@@ -123,10 +122,10 @@ h4 {
   letter-spacing: 0.3px;
 }
 
-/* Dropdown caret – place below the number with spacing */
+/* Dropdown caret – place below the number with spacing
 .total-expenses .dropdown {
   margin-top: 2px;
-}
+} */
 
 .dropdown {
   user-select: none;

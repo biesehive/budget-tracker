@@ -1,4 +1,4 @@
-// File: js/chart.js
+// File: js/chart.js v1.0.5.6
 // Budget Tracker – Standalone charts module (no placeholders)
 
 "use strict";

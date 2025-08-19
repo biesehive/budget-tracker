@@ -1,10 +1,9 @@
 // File: service-worker.js
-// Budget Tracker — Hardened Service Worker (self-hosted Chart.js, no CDN caching)
 
 "use strict";
 
 /* Versioning & Cache Names */
-const APP_VERSION = "1.0.5.5";
+const APP_VERSION = "1.0.5.6";
 const STATIC_CACHE = `budget-tracker-static-v${APP_VERSION}`;
 const RUNTIME_CACHE = `budget-tracker-runtime-v${APP_VERSION}`;
 
