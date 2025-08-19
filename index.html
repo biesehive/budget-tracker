@@ -11,7 +11,7 @@
     http-equiv="Content-Security-Policy"
     content="
       default-src 'self';
-      script-src 'self';
+      script-src 'self' https://cdn.jsdelivr.net;
       style-src 'self';
       img-src 'self' data:;
       connect-src 'self';
@@ -180,7 +180,7 @@
   </div>
 
   <!-- Scripts: self-hosted Chart.js (UMD) then app logic -->
-  <script src="js/vendor/chart.umd.min.js?v=4.4.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script type="module" src="js/chart.js?v=1.0.5.6"></script>
   <script type="module" src="js/app.js?v=1.0.5.6"></script>
 </body>

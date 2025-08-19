@@ -95,37 +95,38 @@ h4 {
 }
 
 /* Center the summary rows and stack content vertically */
+/* Replace the earlier summary layout rules with these */
+
+/* Shared summary styles */
 .total-expenses,
 .remaining-balance {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
   margin-bottom: 14px;
   font-weight: 700;
   text-align: center;
 }
 
+/* Total Damage: number and caret inline (centered) */
 .total-expenses {
-  color: var(--danger);
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
 }
 
+/* What's Left: keep stacked number/text */
 .remaining-balance {
-  color: var(--success);
-  font-size: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Numbers centered and using tabular numerals for better alignment */
-#total-expenses,
-#remaining-balance {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.3px;
-}
-
-/* Dropdown caret – place below the number with spacing
+/* Caret spacing next to the number (no vertical offset) */
 .total-expenses .dropdown {
-  margin-top: 2px;
-} */
+  margin-top: 0;
+  margin-left: 6px;
+}
 
 .dropdown {
   user-select: none;
