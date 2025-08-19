@@ -24,7 +24,7 @@
   <title>Budget Tracker</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css?v=1.0.6.0" />
+  <link rel="stylesheet" href="css/styles.css?v=1.0.6.1" />
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="/budget-tracker/manifest.json" />
@@ -82,7 +82,7 @@
     <div class="footer">
       <p id="days-left"></p>
       <p id="daily-spend"></p>
-      <p><small>v1.0.6.0</small></p>
+      <p><small>v1.0.6.1</small></p>
     </div>
 
     <!-- Settings and Bar Graph Icons -->
@@ -221,7 +221,7 @@
       <h3 id="mood-title">How did that purchase feel?</h3>
       <p>Select a mood for this transaction:</p>
       <div id="mood-choice-group" class="mood-choice-group" role="group" aria-label="Choose mood">
-        <button id="mood-smile" type="button" aria-label="Happy">
+        <button id="mood-smile" class="mood-btn mood-smile" type="button" aria-label="Happy">
           <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="10" fill="none" stroke="#22c55e" stroke-width="2"></circle>
             <circle cx="9" cy="10" r="1.4" fill="#22c55e"></circle>
@@ -229,7 +229,7 @@
             <path d="M8 14c1.6 1.8 3.2 2.6 4 2.6S14.4 15.8 16 14" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"></path>
           </svg>
         </button>
-        <button id="mood-neutral" type="button" aria-label="Neutral">
+        <button id="mood-neutral" class="mood-btn mood-neutral" type="button" aria-label="Neutral">
           <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="10" fill="none" stroke="#111827" stroke-width="2"></circle>
             <circle cx="9" cy="10" r="1.4" fill="#111827"></circle>
@@ -237,7 +237,7 @@
             <path d="M9 15h6" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
           </svg>
         </button>
-        <button id="mood-frown" type="button" aria-label="Unhappy">
+        <button id="mood-frown" class="mood-btn mood-frown" type="button" aria-label="Unhappy">
           <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="10" fill="none" stroke="#f97316" stroke-width="2"></circle>
             <circle cx="9" cy="10" r="1.4" fill="#f97316"></circle>
@@ -254,7 +254,7 @@
 
   <!-- Scripts: Chart.js CDN, then charts module, then app logic -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="js/chart.js?v=1.0.6.0"></script>
-  <script type="module" src="js/app.js?v=1.0.6.0"></script>
+  <script type="module" src="js/chart.js?v=1.0.6.1"></script>
+  <script type="module" src="js/app.js?v=1.0.6.1"></script>
 </body>
 </html>

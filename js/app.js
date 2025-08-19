@@ -1,4 +1,4 @@
-// File: js/app.js v1.0.6.0
+// File: js/app.js v1.0.6.1
 // Budget Tracker – Production-ready app.js with Mood flow (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";
@@ -431,31 +431,71 @@ async function openTransactions() {
   await populateTransactionList();
 }
 
+// async function populateTransactionList() {
+//   const list = qs("transaction-list");
+//   if (!list) return;
+//   let txns = await getAllTransactions();
+//   txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+//   list.innerHTML = "";
+//   if (!txns.length) {
+//     // list.innerHTML = "<li>No transactions available</li>";
+//     li.innerHTML = `
+//     <label class="transaction-item" title="Double-click to edit">
+//         <input type="checkbox" class="transaction-checkbox" data-id="${String(txn.id)}">
+//         <span class="transaction-date">${formatDateForDisplay(txn.date)}</span>
+//         <span class="transaction-category">${txns.category || "Other"}</span>
+//         <span class="transaction-amount">$${Number(txns.amount).toFixed(2)}</span>
+//     </label>
+//     `;
+//     updateMainTrashDisabledState();
+//     return;
+//   }
+
+//   txns.forEach((txn) => {
+//     const li = document.createElement("li");
+//     li.innerHTML = `
+//       <label class="transaction-item" title="Double-click to edit">
+//         <input type="checkbox" class="transaction-checkbox" data-id="${String(txn.id)}">
+//         <span class="transaction-date">${formatDateForDisplay(txn.date)}</span>
+//         <span class="transaction-amount">$${Number(txn.amount).toFixed(2)}</span>
+//         <span class="transaction-category">${txn.category || "Other"}</span>
+//       </label>
+//     `;
+//     li.addEventListener("dblclick", () => editTransaction(Number(txn.id)));
+//     list.appendChild(li);
+//   });
+
+//   updateMainTrashDisabledState();
+// }
+
 async function populateTransactionList() {
   const list = qs("transaction-list");
   if (!list) return;
+
   let txns = await getAllTransactions();
   txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
   list.innerHTML = "";
-  if (!txns.length) {
+
+  if (txns.length === 0) {
     list.innerHTML = "<li>No transactions available</li>";
     updateMainTrashDisabledState();
     return;
   }
 
-  txns.forEach((txn) => {
+  for (const txn of txns) {
     const li = document.createElement("li");
     li.innerHTML = `
       <label class="transaction-item" title="Double-click to edit">
         <input type="checkbox" class="transaction-checkbox" data-id="${String(txn.id)}">
         <span class="transaction-date">${formatDateForDisplay(txn.date)}</span>
-        <span class="transaction-amount">$${Number(txn.amount).toFixed(2)}</span>
         <span class="transaction-category">${txn.category || "Other"}</span>
+        <span class="transaction-amount">$${Number(txn.amount).toFixed(2)}</span>
       </label>
     `;
     li.addEventListener("dblclick", () => editTransaction(Number(txn.id)));
     list.appendChild(li);
-  });
+  }
 
   updateMainTrashDisabledState();
 }

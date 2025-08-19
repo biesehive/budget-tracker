@@ -1,4 +1,4 @@
-/* File: css/styles.css v1.0.6.0*/
+/* File: css/styles.css v1.0.6.1*/
 
 /* =============== */
 /* Base & Resets   */
@@ -344,9 +344,23 @@ ul li {
 /* =============================== */
 /* Transactions – Consistent Width */
 /* =============================== */
+/* Container ensures consistent width */
+#transaction-list {
+  width: 100%;
+}
+
+/* Replace your entire "Transactions" CSS with this ledger-stable version */
+
+/* Container ensures consistent width */
+#transaction-list {
+  width: 100%;
+}
+
+/* Each row laid out as: [checkbox][date .............][category][amount] */
 .transaction-item {
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) var(--amount-width) var(--category-width);
+  grid-template-columns: 20px minmax(0, 1fr) var(--category-width) var(--amount-width);
+  grid-template-areas: "chk date category amount";
   align-items: center;
   gap: 8px;
   padding: 10px 8px;
@@ -354,32 +368,39 @@ ul li {
   border-radius: var(--radius-sm);
   background: #fff;
   transition: border-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  width: 100%;
+  box-sizing: border-box;
 }
-
 .transaction-item:hover {
   border-color: #d1d5db;
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   transform: translateY(-1px);
 }
 
+/* Make the <label> behave like a block container (not inline) */
+.transaction-item * {
+  box-sizing: border-box;
+}
+
 .transaction-item input[type="checkbox"] {
-    grid-column: 1;
-    margin: 0;
+  grid-area: chk;
+  margin: 0;
 }
 
 .transaction-date {
-  grid-column: 2;  
+  grid-area: date;
   color: var(--muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;            /* allow shrink with ellipsis */
 }
 
 .transaction-category {
-  grid-column: 3;
-  width: var(--category-width); /* fixed column width */
+  grid-area: category;
+  width: var(--category-width);
   text-align: right;
   justify-self: end;
   font-weight: 600;
@@ -390,14 +411,15 @@ ul li {
 }
 
 .transaction-amount {
-  grid-column: 4;
-  width: var(--amount-width);   /* fixed column width */
+  grid-area: amount;       /* far-right */
+  width: var(--amount-width);
   text-align: right;
   justify-self: end;
   font-weight: 800;
   color: var(--danger);
   font-variant-numeric: tabular-nums;
 }
+
 
 /* ================== */
 /* Modals             */
@@ -568,12 +590,10 @@ canvas {
     grid-template-columns: 1fr 1fr;
   }
   .transaction-item {
-    /* grid-template-columns: 20px 1fr var(--amount-width); */
     grid-template-columns: 20px minmax(0, 1fr) var(--amount-width);
+    grid-template-areas: "chk date amount";
   }
-  .transaction-category {
-    display: none; /* hide category column on very small screens */
-  }
+  .transaction-category { display: none; }
   .transaction-amount { grid-column: 3; }  /* hide category on sml screens */
 }
 
@@ -615,3 +635,19 @@ canvas {
   display: inline-flex;
   align-items: center;
 }
+
+.mood-choice-group { display:flex; gap:16px; justify-content:center; align-items:center; }
+
+.mood-btn {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:8px 10px; border:2px solid transparent; border-radius:12px;
+  background:transparent; cursor:pointer; transition:border-color 120ms ease, transform 80ms ease;
+}
+.mood-btn:hover, .mood-btn:focus-visible { border-color: var(--mood-color, #d1d5db); outline:none; }
+.mood-btn:active { transform: scale(0.98); }
+
+.mood-smile  { --mood-color:#22c55e; }  /* green */
+.mood-neutral{ --mood-color:#111827; }  /* black */
+.mood-frown  { --mood-color:#f97316; }  /* deep orange */
+
+.mood-caption { font-size:12px; color: var(--text); }
