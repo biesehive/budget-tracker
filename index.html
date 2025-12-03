@@ -14,17 +14,16 @@
       script-src 'self' https://cdn.jsdelivr.net;
       style-src 'self';
       img-src 'self' data:;
-      connect-src 'self';
+      connect-src 'self' https://cdn.jsdelivr.net;
       worker-src 'self';
       object-src 'none';
       base-uri 'self';
-      frame-ancestors 'none'
     " />
 
   <title>Budget Tracker</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css?v=1.0.6.3" />
+  <link rel="stylesheet" href="css/styles.css?v=1.0.6.4" />
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="/budget-tracker/manifest.json" />
@@ -82,7 +81,7 @@
     <div class="footer">
       <p id="days-left"></p>
       <p id="daily-spend"></p>
-      <p><small>v1.0.6.3</small></p>
+      <p><small>v1.0.6.4</small></p>
     </div>
 
     <!-- Settings and Bar Graph Icons -->
@@ -254,7 +253,7 @@
 
   <!-- Scripts: Chart.js CDN, then charts module, then app logic -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="js/chart.js?v=1.0.6.3"></script>
-  <script type="module" src="js/app.js?v=1.0.6.3"></script>
+  <script type="module" src="js/chart.js?v=1.0.6.4"></script>
+  <script type="module" src="js/app.js?v=1.0.6.4"></script>
 </body>
 </html>
