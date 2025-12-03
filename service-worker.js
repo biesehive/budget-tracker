@@ -58,12 +58,25 @@ async function safePut(cache, request, response) {
   }
 }
 
+// async function cacheWarmup() {
+//   const cache = await caches.open(STATIC_CACHE);
+//   for (const path of ASSETS_TO_CACHE) {
+//     try {
+//       const res = await fetch(path, { cache: "no-cache", credentials: "same-origin" });
+//       if (res && res.ok) await safePut(cache, path, res);
+//     } catch {
+//       // ignore individual failures
+//     }
+//   }
+// }
+
 async function cacheWarmup() {
   const cache = await caches.open(STATIC_CACHE);
-  for (const path of ASSETS_TO_CACHE) {
+  for (const url of ASSETS_TO_CACHE) {
     try {
-      const res = await fetch(path, { cache: "no-cache", credentials: "same-origin" });
-      if (res && res.ok) await safePut(cache, path, res);
+      const req = new Request(url, { cache: "no-cache", credentials: "same-origin" });
+      const res = await fetch(req);
+      if (res && res.ok) await safePut(cache, req, res);
     } catch {
       // ignore individual failures
     }
@@ -79,7 +92,55 @@ async function cleanupOldCaches() {
   );
 }
 
-async function networkFirst(request, { fallbackURL = `${BASE}index.html` } = {}) {
+// async function networkFirst(request, { fallbackURL = `${BASE}index.html` } = {}) {
+//   try {
+//     const netRes = await fetch(request);
+//     if (request.method === "GET" && isSameOrigin(request.url) && netRes && netRes.ok) {
+//       const cache = await caches.open(RUNTIME_CACHE);
+//       await safePut(cache, request, netRes);
+//     }
+//     return netRes;
+//   } catch {
+//     const cache = await caches.open(STATIC_CACHE);
+//     const cached = await cache.match(request, { ignoreSearch: true });
+//     if (cached) return cached;
+//     if (request.mode === "navigate") {
+//       const shell = await cache.match(fallbackURL, { ignoreSearch: true });
+//       if (shell) return shell;
+//     }
+//     return new Response("Offline", { status: 503, statusText: "Offline" });
+//   }
+// }
+
+// async function cacheFirst(request, cacheName = STATIC_CACHE) {
+//   const cache = await caches.open(cacheName);
+//   const cached = await cache.match(request, { ignoreSearch: true });
+//   if (cached) return cached;
+//   try {
+//     const res = await fetch(request);
+//     if (request.method === "GET" && res && res.ok) await safePut(cache, request, res);
+//     return res;
+//   } catch {
+//     return new Response("Offline", { status: 503, statusText: "Offline" });
+//   }
+// }
+
+// async function staleWhileRevalidate(request, cacheName = RUNTIME_CACHE) {
+//   const cache = await caches.open(cacheName);
+//   const cached = await cache.match(request, { ignoreSearch: true });
+//   const fetchPromise = (async () => {
+//     try {
+//       const res = await fetch(request);
+//       if (res && res.ok) await safePut(cache, request, res);
+//       return res;
+//     } catch {
+//       return null;
+//     }
+//   })();
+//   return cached || (await fetchPromise) || new Response("Offline", { status: 503, statusText: "Offline" });
+// }
+
+async function networkFirst(request, { fallbackURL = `${BASE}index.html?v=${APP_VERSION}` } = {}) {
   try {
     const netRes = await fetch(request);
     if (request.method === "GET" && isSameOrigin(request.url) && netRes && netRes.ok) {
@@ -89,19 +150,20 @@ async function networkFirst(request, { fallbackURL = `${BASE}index.html` } = {})
     return netRes;
   } catch {
     const cache = await caches.open(STATIC_CACHE);
-    const cached = await cache.match(request, { ignoreSearch: true });
+    const cached = await cache.match(request); // DO NOT ignoreSearch
     if (cached) return cached;
     if (request.mode === "navigate") {
-      const shell = await cache.match(fallbackURL, { ignoreSearch: true });
+      const shell = await cache.match(fallbackURL);
       if (shell) return shell;
     }
     return new Response("Offline", { status: 503, statusText: "Offline" });
   }
 }
 
+// Cache-first for static assets; DO NOT ignoreSearch so ?v= busts correctly
 async function cacheFirst(request, cacheName = STATIC_CACHE) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request); // DO NOT ignoreSearch
   if (cached) return cached;
   try {
     const res = await fetch(request);
@@ -112,9 +174,10 @@ async function cacheFirst(request, cacheName = STATIC_CACHE) {
   }
 }
 
+// SWR for same-origin GETs; DO NOT ignoreSearch
 async function staleWhileRevalidate(request, cacheName = RUNTIME_CACHE) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request); // DO NOT ignoreSearch
   const fetchPromise = (async () => {
     try {
       const res = await fetch(request);

@@ -12,11 +12,31 @@ import {
 } from "./chart.js";
 
 // ---------------- Service Worker ----------------
+// if ("serviceWorker" in navigator) {
+//   window.addEventListener("load", () => {
+//     navigator.serviceWorker
+//       .register("/budget-tracker/service-worker.js")
+//       .then((reg) => console.log("SW registered:", reg.scope))
+//       .catch((err) => console.log("SW registration failed:", err));
+//   });
+// }
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/budget-tracker/service-worker.js")
-      .then((reg) => console.log("SW registered:", reg.scope))
+      .then((reg) => {
+        // auto-pull updates
+        if (reg.update) reg.update();
+        // reload once when new SW takes control
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (!window.__swReloaded) {
+            window.__swReloaded = true;
+            window.location.reload();
+          }
+        });
+        console.log("SW registered:", reg.scope);
+      })
       .catch((err) => console.log("SW registration failed:", err));
   });
 }
