@@ -1,4 +1,4 @@
-// File: js/app.js v1.0.6.1
+// File: js/app.js v1.0.6.2
 // Budget Tracker – Production-ready app.js with Mood flow (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";
@@ -840,7 +840,7 @@ function clearAllStores() { ["transactions", "categories", "settings"].forEach((
     slider.min = "25";
     slider.max = "500";
     slider.value = ((25 + 500) / 2).toString();
-    updateSliderAmount();
+    //updateSliderAmount();
     const minValEl = qs("min-value"); const maxValEl = qs("max-value");
     if (minValEl) minValEl.textContent = Number(slider.min).toFixed(2);
     if (maxValEl) maxValEl.textContent = Number(slider.max).toFixed(2);

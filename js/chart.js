@@ -1,4 +1,4 @@
-// File: js/chart.js v1.0.6.1
+// File: js/chart.js v1.0.6.2
 // Budget Tracker – Standalone charts module with Mood pie chart (no placeholders)
 
 "use strict";

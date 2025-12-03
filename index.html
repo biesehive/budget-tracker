@@ -24,7 +24,7 @@
   <title>Budget Tracker</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css?v=1.0.6.1" />
+  <link rel="stylesheet" href="css/styles.css?v=1.0.6.2" />
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="/budget-tracker/manifest.json" />
@@ -82,7 +82,7 @@
     <div class="footer">
       <p id="days-left"></p>
       <p id="daily-spend"></p>
-      <p><small>v1.0.6.1</small></p>
+      <p><small>v1.0.6.2</small></p>
     </div>
 
     <!-- Settings and Bar Graph Icons -->
@@ -190,6 +190,7 @@
       <span id="close-transactions" class="close" role="button" aria-label="Close transactions">&times;</span>
       <h3 id="transactions-title">Transactions</h3>
       <img src="./images/trash-can.png" alt="Delete selected transactions" id="delete-transaction" class="trash-icon is-disabled" role="button" aria-disabled="true" />
+    </br>
       <ul id="transaction-list" aria-label="Transaction list"></ul>
     </div>
   </div>
@@ -219,7 +220,6 @@
     <div class="modal-content">
       <span id="close-mood" class="close" role="button" aria-label="Close mood prompt">&times;</span>
       <h3 id="mood-title">How did that purchase feel?</h3>
-      <p>Select a mood for this transaction:</p>
       <div id="mood-choice-group" class="mood-choice-group" role="group" aria-label="Choose mood">
         <button id="mood-smile" class="mood-btn mood-smile" type="button" aria-label="Happy">
           <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true">
@@ -254,7 +254,7 @@
 
   <!-- Scripts: Chart.js CDN, then charts module, then app logic -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="js/chart.js?v=1.0.6.1"></script>
-  <script type="module" src="js/app.js?v=1.0.6.1"></script>
+  <script type="module" src="js/chart.js?v=1.0.6.2"></script>
+  <script type="module" src="js/app.js?v=1.0.6.2"></script>
 </body>
 </html>
