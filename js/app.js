@@ -1,4 +1,4 @@
-// File: js/app.js v1.0.6.4
+// File: js/app.js v1.0.6.5
 // Budget Tracker – Production-ready app.js with Mood flow (charts separated, full UI hooks, IndexedDB-backed)
 
 "use strict";
@@ -145,7 +145,11 @@ function qs(id) {
 }
 
 function formatDateForStorage(date) {
-  return date.toISOString().split("T")[0];
+  // return date.toISOString().split("T")[0];
+  const y = date.getFullYear();
+  const m = pad2(date.getMonth() + 1);
+  const d = pad2(date.getDate());
+  return `${y}-${m}-${d}`;
 }
 
 function formatDateForDisplay(dateStr) {
@@ -212,11 +216,23 @@ function updateDailySpend(totalExpenses) {
   if (el) el.innerText = `Daily spending $${daily}`;
 }
 
+// async function updateTotalExpenses() {
+//   const transactionsData = await getAllRecords("transactions");
+//   const totalExpenses = transactionsData.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+//   const el = qs("total-expenses");
+//   if (el) el.innerText = `$ ${totalExpenses.toFixed(2)}`;
+//   await updateRemainingBalance(startingBalance, totalExpenses);
+//   updateDailySpend(totalExpenses);
+// }
+
 async function updateTotalExpenses() {
   const transactionsData = await getAllRecords("transactions");
-  const totalExpenses = transactionsData.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const currentPeriodTxns = transactionsData.filter(isTxnInCurrentPeriod);
+
+  const totalExpenses = currentPeriodTxns.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
   const el = qs("total-expenses");
   if (el) el.innerText = `$ ${totalExpenses.toFixed(2)}`;
+
   await updateRemainingBalance(startingBalance, totalExpenses);
   updateDailySpend(totalExpenses);
 }
@@ -227,6 +243,53 @@ function updateDaysLeft() {
   const daysLeft = Math.max(0, lastDay.getDate() - today.getDate());
   const el = qs("days-left");
   if (el) el.innerText = `${daysLeft} days until the end of the month`;
+}
+
+// ---------------- Pay Period Helpers ----------------
+function pad2(n) {
+  return n < 10 ? "0" + n : String(n);
+}
+
+function getPayPeriodStart() {
+  const frequency = localStorage.getItem("payFrequency") || "monthly";
+  const today = new Date();
+  
+  if (frequency === "monthly") {
+    // First day of current month
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  } else if (frequency === "weekly") {
+    // Most recent Sunday (or Monday, depending on preference)
+    const day = today.getDay(); // 0 = Sunday
+    const diff = today.getDate() - day;
+    return new Date(today.getFullYear(), today.getMonth(), diff);
+  } else if (frequency === "biweekly") {
+    // This needs a reference point - using first of year as anchor
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const daysSinceStart = Math.floor((today - startOfYear) / (1000 * 60 * 60 * 24));
+    const periodNumber = Math.floor(daysSinceStart / 14);
+    const daysIntoPeriod = daysSinceStart % 14;
+    const periodStart = new Date(startOfYear);
+    periodStart.setDate(periodStart.getDate() + (periodNumber * 14));
+    return periodStart;
+  }
+  
+  // Default to monthly
+  return new Date(today.getFullYear(), today.getMonth(), 1);
+}
+
+function isTxnInCurrentPeriod(txn) {
+  if (!txn || !txn.date) return false;
+  
+  const txnDate = parseDate(txn.date);
+  const periodStart = getPayPeriodStart();
+  const today = new Date();
+  
+  // Set times to midnight for accurate date comparison
+  txnDate.setHours(0, 0, 0, 0);
+  periodStart.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999);
+  
+  return txnDate >= periodStart && txnDate <= today;
 }
 
 // ---------------- Event Bindings ----------------
@@ -492,7 +555,10 @@ async function populateTransactionList() {
   const list = qs("transaction-list");
   if (!list) return;
 
-  let txns = await getAllTransactions();
+  // let txns = await getAllTransactions();
+  // txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  let txns = await getCurrentPeriodTransactions();
   txns.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   list.innerHTML = "";
@@ -524,6 +590,11 @@ function getCheckedTransactionIds() {
   return Array.from(document.querySelectorAll(".transaction-checkbox:checked"))
     .map((cb) => parseInt(cb.dataset.id, 10))
     .filter((id) => !Number.isNaN(id));
+}
+
+async function getCurrentPeriodTransactions() {
+  const all = await getAllTransactions();
+  return all.filter(isTxnInCurrentPeriod);
 }
 
 function updateMainTrashDisabledState() {
